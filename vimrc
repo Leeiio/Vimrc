@@ -1,0 +1,423 @@
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"
+"             Leeiio的 Vim 配置文件
+"
+"         Author: Leeiio<guaniu@gmail.com>
+"        Website: http://leeiio.me/
+"          Since: 2010-02-22
+"  Last Modified: 2010-02-22 14:36:01 leeiio
+"
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"source $VIMRUNTIME/vimrc_example.vim
+
+if v:version < 700
+    echoerr 'This _vimrc requires Vim 7 or later.'
+    quit
+endif
+
+" 获取当前目录
+func! GetPWD()
+    return substitute(getcwd(), "", "", "g")
+endf
+
+" 跳过页头注释，到首行实际代码
+func! GotoFirstEffectiveLine()
+    let l:c = 0
+    while l:c<line("$") && (
+                \ getline(l:c) =~ '^\s*$'
+                \ || synIDattr(synID(l:c, 1, 0), "name") =~ ".*Comment.*"
+                \ || synIDattr(synID(l:c, 1, 0), "name") =~ ".*PreProc$"
+                \ )
+        let l:c = l:c+1
+    endwhile
+    exe "normal ".l:c."Gz\<CR>"
+endf
+
+" 返回当前时期
+func! GetDateStamp()
+    return strftime('%Y-%m-%d')
+endfunction
+
+" 全选
+func! SelectAll()
+    let s:current = line('.')
+    exe "norm gg" . (&slm == "" ? "VG" : "gH\<C-O>G")
+endfunc
+
+" =====================
+" 环境配置
+" =====================
+" 中文帮助
+set helplang=cn 
+
+" 保留历史记录
+set history=500
+
+" 行控制
+set linebreak " 英文单词在换行时不被截断
+set nocompatible " 设置不兼容VI
+set textwidth=80 " 设置每行80个字符自动换行，加上换行符
+set wrap " 设置自动折行
+
+" 标签页
+set tabpagemax=15 " 最多15个标签
+set showtabline=2 " 总是显示标签栏
+
+" 关闭遇到错误时的声音提示
+set noerrorbells
+set novisualbell
+set t_vb= " close visual bell
+
+" 行号和标尺
+set ruler " 显示标尺
+set number " 行号
+set rulerformat=%15(%c%V\ %p%%%)
+
+" 命令行于状态行
+set cmdheight=1 " 设置命令行的高度
+set laststatus=2 " 始终显示状态行
+set stl=\ [File]\ %F%m%r%h%y[%{&fileformat},%{&fileencoding}]\ %w\ \ [PWD]\ %r%{GetPWD()}%h\ %=\ [Line]%l/%L\ %=\[%P] "设置状态栏的信息
+
+" 搜索
+set hlsearch  " 高亮显示搜索的内容
+set noincsearch " 关闭显示查找匹配过程
+"set magic     " Set magic on, for regular expressions
+"set showmatch " Show matching bracets when text indicator is over them
+"set mat=2     " How many tenths of a second to blink
+
+" 制表符(设置所有的tab和缩进为4个空格)
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+set expandtab " 使用空格来替换tab
+set smarttab
+
+" 状态栏显示目前所执行的指令
+set showcmd
+
+" 缩进
+set autoindent " 设置自动缩进
+set smartindent " 设置智能缩进
+
+" 自动重新读入
+set autoread " 当文件在外部被修改，自动更新该文件
+
+" 设定在任何模式下鼠标都可用
+set mouse=a
+
+" 插入模式下使用 <BS>、<Del> <C-W> <C-U>
+set backspace=indent,eol,start
+
+" 备份和缓存
+set nobackup
+set nowb
+"set noswapfile
+
+" 自动完成
+set complete=.,w,b,k,t,i
+set completeopt=longest,menu " 只在下拉菜单中显示匹配项目，并且会自动插入所有匹配项目的相同文本
+
+" 代码折叠
+set foldmethod=marker
+
+" =====================
+" 多语言环境
+"    默认为 UTF-8 编码
+" =====================
+if has("multi_byte")
+    set encoding=utf-8
+    " English messages only
+    "language messages zh_CN.utf-8
+
+    if has('win32')
+        language english
+        let &termencoding=&encoding " 处理consle输出乱码
+    endif
+
+    set fencs=utf-8,gbk,chinese,latin1
+    set formatoptions+=mM
+    set nobomb " 不使用 Unicode 签名
+
+    if v:lang =~? '^\(zh\)\|\(ja\)\|\(ko\)'
+        set ambiwidth=double
+    endif
+else
+    echoerr "Sorry, this version of (g)vim was not compiled with +multi_byte"
+endif
+
+" =====================
+" AutoCmd 自动运行
+" =====================
+if has("autocmd")
+    filetype plugin indent on " 打开文件类型检测
+
+    augroup vimrcEx " 记住上次文件位置
+        au!
+        autocmd FileType text setlocal textwidth=80
+        autocmd BufReadPost *
+                    \ if line("'\"") > 0 && line("'\"") <= line("$") |
+                    \   exe "normal g`\"" |
+                    \ endif
+    augroup END
+    
+    " 括号自动补全
+    function! AutoClose()
+        :inoremap ( ()<ESC>i
+        :inoremap " ""<ESC>i
+        :inoremap ' ''<ESC>i
+        :inoremap { {}<ESC>i
+        :inoremap [ []<ESC>i
+        :inoremap ) <c-r>=ClosePair(')')<CR>
+        :inoremap } <c-r>=ClosePair('}')<CR>
+        :inoremap ] <c-r>=ClosePair(']')<CR>
+    endf
+
+    function! ClosePair(char)
+        if getline('.')[col('.') - 1] == a:char
+            return "\<Right>"
+        else
+            return a:char
+        endif
+    endf
+
+    "auto close for PHP and Javascript script
+    au FileType css,html,php,c,python,javascript exe AutoClose()
+	
+	" Auto Check Syntax
+    au BufWritePost,FileWritePost *.js,*.php call CheckSyntax(1)
+
+    " JavaScript 语法高亮
+    au FileType html,javascript let g:javascript_enable_domhtmlcss = 1
+    au BufRead,BufNewFile *.js setf jquery
+	
+	" 给各语言文件添加 Dict
+    if has('win32')
+        au FileType php setlocal dict+=$VIM/vimfiles/dict/php_funclist.dict
+        au FileType css setlocal dict+=$VIM/vimfiles/dict/css.dict
+        au FileType javascript setlocal dict+=$VIM/vimfiles/dict/javascript.dict
+    else
+        au FileType php setlocal dict+=~/.vim/dict/php_funclist.dict
+        au FileType css setlocal dict+=~/.vim/dict/css.dict
+        au FileType javascript setlocal dict+=~/.vim/dict/javascript.dict
+    endif
+
+    " 自动最大化窗口
+    if has('gui_running')
+        if has("win32")
+            au GUIEnter * simalt ~x
+            "elseif has("unix")
+            "au GUIEnter * winpos 0 0
+            "set lines=999 columns=999
+        endif
+    endif
+	
+	" 格式化 JavaScript 文件
+    au FileType javascript map <f12> :call g:Jsbeautify()<cr>
+    au FileType javascript set omnifunc=javascriptcomplete#CompleteJS
+	
+	" 增加 ActionScript 语法支持
+    au BufNewFile,BufRead,BufEnter,WinEnter,FileType *.as setf actionscript
+	
+	" CSS3 语法支持
+    au BufRead,BufNewFile *.css set ft=css syntax=css3
+	
+	" 增加 Objective-C 语法支持
+    au BufNewFile,BufRead,BufEnter,WinEnter,FileType *.m,*.h setf objc
+	
+	" 将指定文件的换行符转换成 UNIX 格式
+    au FileType php,javascript,html,css,python,vim,vimwiki set ff=unix
+endif
+
+" =====================
+" 图形界面
+" =====================
+if has('gui_running')
+    "set guioptions=mcr " 只显示菜单
+    "set guioptions=   " 隐藏全部的gui选项
+    "set guioptions+=r " 显示gui右边滚动条
+    
+    "Toggle Menu and Toolbar 使用F2隐藏/显示菜单
+    set guioptions-=m
+    set guioptions-=T
+    map <silent> <F3> :if &guioptions =~# 'T' <Bar>
+            \set guioptions-=T <Bar>
+            \set guioptions-=m <bar>
+        \else <Bar>
+            \set guioptions+=T <Bar>
+            \set guioptions+=m <Bar>
+        \endif<CR>
+
+    if has('gui_macvim')
+        set guioptions+=e
+    endif
+
+    set cursorline " 高亮光标所在的行
+    "hi cursorline guibg=#222222
+    "hi CursorColumn guibg=#333333
+
+    if has("win32")
+        " Windows 兼容配置
+        source $VIMRUNTIME/mswin.vim
+
+        " F11 最大化
+        map <f11> :call libcallnr('fullscreen.dll', 'ToggleFullScreen', 0)<cr>
+
+        " 字体配置
+        "exec 'set guifont='.iconv('Courier_New', &enc, 'gbk').':h10:cANSI'
+        "exec 'set guifontwide='.iconv('微软雅黑', &enc, 'gbk').':h10'
+        set guifont=YaHei_Consolas_Hybrid:h12:cANSI
+		set guifontwide=YaHei_Consolas_Hybrid:h12
+    endif
+
+    if has("unix") && !has('gui_macvim')
+        set guifont=Courier\ 10\ Pitch\ 11
+    endif
+
+    if has("mac") || has("gui_macvim")
+        if has("gui_macvim")
+            " MacVim 下的字体配置
+            "set guifont=Courier_New:h14
+            "set guifontwide=YouYuan:h14
+			set guifont=YaHei_Consolas_Hybrid:h12:cANSI
+            set guifontwide=YaHei_Consolas_Hybrid:h12
+
+            set transparency=2
+            set lines=200 columns=120
+
+            " 使用 MacVim 原生的全屏幕功能
+            let s:lines=&lines
+            let s:columns=&columns
+            func! FullScreenEnter()
+                set lines=999 columns=999
+                set fu
+            endf
+
+            func! FullScreenLeave()
+                let &lines=s:lines
+                let &columns=s:columns
+                set nofu
+            endf
+
+            func! FullScreenToggle()
+                if &fullscreen
+                    call FullScreenLeave()
+                else
+                    call FullScreenEnter()
+                endif
+            endf
+        endif
+    endif
+endif
+
+"去除当前所编辑文件的路径信息，只保留文件名
+set guitablabel=%{ShortTabLabel()}
+function ShortTabLabel()
+    let bufnrlist = tabpagebuflist(v:lnum)
+    let label = bufname(bufnrlist[tabpagewinnr(v:lnum) -1])
+    let filename = fnamemodify(label, ':t')
+    return filename
+endfunction
+
+" =====================
+" 快捷键
+" =====================
+"设置','为leader快捷键
+let mapleader = ","
+let g:mapleader = ","
+
+"设置快速保存和退出
+"快速保存为,s
+"快速退出（保存）为,w
+"快速退出（不保存）为,q
+nmap <leader>s :w!<cr>
+nmap <leader>w :wq!<cr>
+nmap <leader>q :q!<cr>
+
+nmap <C-t>   :tabnew<cr>
+nmap <C-p>   :tabprevious<cr>
+nmap <C-n>   :tabnext<cr>
+nmap <C-k>   :tabclose<cr>
+nmap <C-Tab> :tabnext<cr>
+
+" 插件快捷键
+nmap <C-d> :NERDTree<cr>
+nmap <C-e> :BufExplorer<cr>
+nmap <f2>  :BufExplorer<cr>
+
+" 插入模式按 F4 插入当前时间
+imap <f4> <C-r>=GetDateStamp()<cr>
+
+" 新建 XHTML 、PHP、Javascript 文件的快捷键
+nmap <C-c><C-h> :NewQuickTemplateTab xhtml<cr>
+nmap <C-c><C-p> :NewQuickTemplateTab php<cr>
+nmap <C-c><C-j> :NewQuickTemplateTab javascript<cr>
+nmap <C-c><C-c> :NewQuickTemplateTab css<cr>
+
+" 直接查看第一行生效的代码
+nmap <C-g><C-f> :call GotoFirstEffectiveLine()<cr>
+
+" 按下 Q 不进入 Ex 模式，而是退出
+nmap Q :x<cr>
+
+" 打开日历快捷键
+map ca :Calendar<cr>
+
+"关闭自动检测编码用F6控制(fencview.vim)
+let g:fencview_autodetect=0
+map <F6> :FencView<cr>
+
+" =====================
+" 插件配置
+" =====================
+" Javascript in CheckSyntax
+if has('win32')
+    let g:checksyntax_cmd_javascript  = 'jsl -conf '.shellescape($VIM . '\vimfiles\plugin\jsl.conf')
+else
+    let g:checksyntax_cmd_javascript  = 'jsl -conf ~/.vim/plugin/jsl.conf'
+endif
+let g:checksyntax_cmd_javascript .= ' -nofilelisting -nocontext -nosummary -nologo -process'
+
+" Under the Mac(MacVim)
+if has("gui_macvim")
+    " Mac 下，按 \ff 切换全屏
+    map <Leader>ff  :call FullScreenToggle()<cr>
+
+    " I like TCSH :^)
+    set shell=/bin/tcsh
+
+    " Set input method off
+    set imdisable
+
+    " Set QuickTemplatePath
+    let g:QuickTemplatePath = $HOME.'/.vim/templates/'
+
+    " 如果为空文件，则自动设置当前目录为桌面
+    lcd ~/Desktop/
+endif
+
+" 日历插件
+if has("win32")
+let calendar_diary = "D:\\Program Files\\Vim\\vimfiles\\calendar"
+autocmd BufNewFile *.cal read $VIM\vimfiles\template\calendar_morning_diary.tpl | normal ggdd "日历套用模版
+endif
+if has("gui_macvim")
+let calendar_diary = $HOME."/.vim/calendar"
+autocmd BufNewFile *.cal read $HOME/.vim/templates/calendar_morning_diary.tpl | normal ggdd "日历套用模版
+endif
+
+" =====================
+" 主题配色
+" =====================
+if has('syntax')
+    " 默认编辑器配色
+    au FileType * colorscheme molokai
+    colorscheme molokai
+
+    " 各不同类型的文件配色不同
+    au FileType vimwiki colorscheme darkblue
+
+    " 保证语法高亮
+    syntax on
+endif
+
+" vim: set et sw=4 ts=4 sts=4 fdm=marker ft=vim ff=unix fenc=utf8:
