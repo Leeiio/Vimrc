@@ -405,16 +405,46 @@ let calendar_diary = $HOME."/.vim/calendar"
 autocmd BufNewFile *.cal read $HOME/.vim/templates/calendar_morning_diary.tpl | normal ggdd "日历套用模版
 endif
 
+" VimWiki 配置
+if !exists("g:vimwiki_list")
+    let g:vimwiki_list = [
+                \{"path": "~/Dropbox/VimWiki/wikiIndex", "path_html": "~/Dropbox/VimWiki/wikiHtml",  
+                \   "html_footer": "~/Dropbox/VimWiki/wikiTemplate/footer.tpl", "html_header": "~/Dropbox/VimWiki/wikiTemplate/header.tpl",
+                \   "auto_export": 1}]
+    let g:vimwiki_auto_checkbox = 0
+    if has('win32')
+        " 注意！
+        " 1、如果在 Windows 下，盘符必须大写
+        " 2、路径末尾最好加上目录分隔符
+        let s:vimwiki_root = "F:/My Dropbox/VimWiki"
+        let g:vimwiki_list = [
+                    \{"path": s:vimwiki_root."/wikiIndex/", 
+                    \   "html_footer": s:vimwiki_root."/wikiTemplate/footer.tpl", 
+                    \   "html_header": s:vimwiki_root."/wikiTemplate/header.tpl",
+                    \   "path_html": s:vimwiki_root."/wikiHtml/", "auto_export": 1}]
+        let g:vimwiki_w32_dir_enc = 'cp936'
+    endif
+
+    au FileType vimwiki set ff=unix fenc=utf8 noswapfile nobackup
+    "au FileType vimwiki imap <C-t> <c-r>=TriggerSnippet()<cr>
+    
+    nmap <C-i><C-i> :VimwikiTabGoHome<cr>
+endif
+
+" on Windows, default charset is gbk
+if has("win32")
+    let g:fontsize#encoding = "cp936"
+endif
+
 " =====================
 " 主题配色
 " =====================
 if has('syntax')
-    " 默认编辑器配色
-    au FileType * colorscheme molokai
-    colorscheme molokai
+" 默认编辑器配色
+    au BufNewFile,BufRead,BufEnter,WinEnter * colo molokai
 
     " 各不同类型的文件配色不同
-    au FileType vimwiki colorscheme darkblue
+    au BufNewFile,BufRead,BufEnter,WinEnter *.wiki colo moria    
 
     " 保证语法高亮
     syntax on
