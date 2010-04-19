@@ -48,7 +48,7 @@ endfunc
 " 环境配置
 " =====================
 " 中文帮助
-set helplang=cn 
+set helplang=cn
 
 " 保留历史记录
 set history=500
@@ -120,6 +120,16 @@ set completeopt=longest,menu " 只在下拉菜单中显示匹配项目，并且�
 " 代码折叠
 set foldmethod=marker
 
+" 显示tab和空格
+set list
+" 设置tab和空格样式
+set listchars=tab:\|\ ,nbsp:%,trail:-
+
+" 设定行首tab为灰色
+highlight LeaderTab guifg=#666666
+" 匹配行首tab
+match LeaderTab /\t/
+
 " =====================
 " 多语言环境
 "    默认为 UTF-8 编码
@@ -159,7 +169,7 @@ if has("autocmd")
                     \   exe "normal g`\"" |
                     \ endif
     augroup END
-    
+
     " 括号自动补全
     function! AutoClose()
         :inoremap ( ()<ESC>i
@@ -182,15 +192,15 @@ if has("autocmd")
 
     "auto close for PHP and Javascript script
     au FileType css,html,php,c,python,javascript exe AutoClose()
-	
-	" Auto Check Syntax
+
+    " Auto Check Syntax
     au BufWritePost,FileWritePost *.js,*.php call CheckSyntax(1)
 
     " JavaScript 语法高亮
     au FileType html,javascript let g:javascript_enable_domhtmlcss = 1
     au BufRead,BufNewFile *.js setf jquery
-	
-	" 给各语言文件添加 Dict
+
+    " 给各语言文件添加 Dict
     if has('win32')
         au FileType php setlocal dict+=$VIM/vimfiles/dict/php_funclist.dict
         au FileType css setlocal dict+=$VIM/vimfiles/dict/css.dict
@@ -210,23 +220,31 @@ if has("autocmd")
             "set lines=999 columns=999
         endif
     endif
-	
-	" 格式化 JavaScript 文件
+
+    " 格式化 JavaScript 文件
     au FileType javascript map <f12> :call g:Jsbeautify()<cr>
     au FileType javascript set omnifunc=javascriptcomplete#CompleteJS
-	
-	" 增加 ActionScript 语法支持
+
+    " 增加 ActionScript 语法支持
     au BufNewFile,BufRead,BufEnter,WinEnter,FileType *.as setf actionscript
-	
-	" CSS3 语法支持
+
+    " CSS3 语法支持
     au BufRead,BufNewFile *.css set ft=css syntax=css3
-	
-	" 增加 Objective-C 语法支持
+
+    " 增加 Objective-C 语法支持
     au BufNewFile,BufRead,BufEnter,WinEnter,FileType *.m,*.h setf objc
-	
-	" 将指定文件的换行符转换成 UNIX 格式
+
+    " 将指定文件的换行符转换成 UNIX 格式
     au FileType php,javascript,html,css,python,vim,vimwiki set ff=unix
 endif
+
+" 自动载入VIM配置文件
+autocmd! bufwritepost vimrc source $MYVIMRC
+
+" 关闭VIM的时候保存会话，按F122读取会话
+set sessionoptions=buffers,sesdir,help,tabpages,winsize
+au VimLeave * mks! ~/Session.vim
+nmap <F7> :so ~/Session.vim<CR>
 
 " =====================
 " 图形界面
@@ -235,7 +253,6 @@ if has('gui_running')
     "set guioptions=mcr " 只显示菜单
     "set guioptions=   " 隐藏全部的gui选项
     "set guioptions+=r " 显示gui右边滚动条
-    
     "Toggle Menu and Toolbar 使用F2隐藏/显示菜单
     set guioptions-=m
     set guioptions-=T
@@ -266,7 +283,7 @@ if has('gui_running')
         "exec 'set guifont='.iconv('Courier_New', &enc, 'gbk').':h10:cANSI'
         "exec 'set guifontwide='.iconv('微软雅黑', &enc, 'gbk').':h10'
         set guifont=YaHei_Consolas_Hybrid:h12:cANSI
-		set guifontwide=YaHei_Consolas_Hybrid:h12
+        set guifontwide=YaHei_Consolas_Hybrid:h12
     endif
 
     if has("unix") && !has('gui_macvim')
@@ -278,7 +295,7 @@ if has('gui_running')
             " MacVim 下的字体配置
             "set guifont=Courier_New:h14
             "set guifontwide=YouYuan:h14
-			set guifont=YaHei_Consolas_Hybrid:h12:cANSI
+            set guifont=YaHei_Consolas_Hybrid:h13
             set guifontwide=YaHei_Consolas_Hybrid:h12
 
             set transparency=2
@@ -366,6 +383,15 @@ map ca :Calendar<cr>
 let g:fencview_autodetect=0
 map <F6> :FencView<cr>
 
+" 快速修改 vimrc 文件
+if has("win32")
+    map <silent> <leader>ee :e $VIM/vimfiles/vimrc<cr>
+    map <silent> <leader>rc :source $VIM/vimfiles/vimrc<cr> " 快速载入 vimrc 文件
+else
+    map <silent> <leader>ee :e ~/.vim/vimrc<cr>
+    map <silent> <leader>rc :source ~/.vim/vimrc<cr> " 快速载入 vimrc 文件
+endif
+
 " =====================
 " 插件配置
 " =====================
@@ -386,7 +412,7 @@ if has("gui_macvim")
     set shell=/bin/tcsh
 
     " Set input method off
-    set imdisable
+    "set imdisable
 
     " Set QuickTemplatePath
     let g:QuickTemplatePath = $HOME.'/.vim/templates/'
@@ -427,7 +453,7 @@ if !exists("g:vimwiki_list")
 
     au FileType vimwiki set ff=unix fenc=utf8 noswapfile nobackup
     "au FileType vimwiki imap <C-t> <c-r>=TriggerSnippet()<cr>
-    
+
     nmap <C-i><C-i> :VimwikiTabGoHome<cr>
 endif
 
@@ -444,7 +470,7 @@ if has('syntax')
     au BufNewFile,BufRead,BufEnter,WinEnter * colo molokai
 
     " 各不同类型的文件配色不同
-    au BufNewFile,BufRead,BufEnter,WinEnter *.wiki colo moria    
+    au BufNewFile,BufRead,BufEnter,WinEnter *.wiki colo moria
 
     " 保证语法高亮
     syntax on
