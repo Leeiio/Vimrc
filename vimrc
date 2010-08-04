@@ -118,7 +118,7 @@ set complete=.,w,b,k,t,i
 set completeopt=longest,menu " 只在下拉菜单中显示匹配项目，并且会自动插入所有匹配项目的相同文本
 
 " 代码折叠
-set foldmethod=marker
+set foldmethod=indent
 
 " 显示tab和空格
 set list
@@ -298,7 +298,7 @@ if has('gui_running')
             set guifont=YaHei_Consolas_Hybrid:h13
             set guifontwide=YaHei_Consolas_Hybrid:h12
 
-            set transparency=2
+            set transparency=5
             set lines=200 columns=120
 
             " 使用 MacVim 原生的全屏幕功能
@@ -334,6 +334,14 @@ function ShortTabLabel()
     let filename = fnamemodify(label, ':t')
     return filename
 endfunction
+
+"Highlight current
+if has("gui_running")
+    set cursorline
+    set cursorcolumn
+    hi cursorline guibg=#555555
+    hi CursorColumn guibg=#555555
+endif
 
 " =====================
 " 快捷键
