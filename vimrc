@@ -299,7 +299,7 @@ if has('gui_running')
             set guifontwide=YaHei_Consolas_Hybrid:h12
 
             set transparency=5
-            set lines=200 columns=120
+            set lines=200 columns=180
 
             " 使用 MacVim 原生的全屏幕功能
             let s:lines=&lines
@@ -325,6 +325,66 @@ if has('gui_running')
         endif
     endif
 endif
+
+" 更加智能的括号匹配
+inoremap ( <c-r>=OpenPair('(')<CR>
+inoremap ) <c-r>=ClosePair(')')<CR>
+inoremap { <c-r>=OpenPair('{')<CR>
+inoremap } <c-r>=ClosePair('}')<CR>
+inoremap [ <c-r>=OpenPair('[')<CR>
+inoremap ] <c-r>=ClosePair(']')<CR>
+"just for xml document, but need not for now.
+inoremap < <c-r>=OpenPair('<')<CR>
+inoremap > <c-r>=ClosePair('>')<CR>
+function! OpenPair(char)
+    let PAIRs = {
+                \ '{' : '}',
+                \ '[' : ']',
+                \ '(' : ')',
+                \ '<' : '>'
+                \}
+    let line = getline('.')
+    let oL = len(split(line, a:char, 1))-1
+    let cL = len(split(line, PAIRs[a:char], 1))-1
+
+    let txt = strpart(line, col('.')-1)
+    let ol = len(split(txt, a:char, 1))-1
+    let cl = len(split(txt, PAIRs[a:char], 1))-1
+
+    if oL>=cL || (oL<cL && ol>=cl)
+        return a:char . PAIRs[a:char] . "\<Left>"
+    else
+        return a:char
+    endif
+endfunction
+function! ClosePair(char)
+    if getline('.')[col('.')-1] == a:char
+        return "\<Right>"
+    else
+        return a:char
+    endif
+endf
+
+inoremap ' <c-r>=CompleteQuote("'")<CR>
+inoremap " <c-r>=CompleteQuote('"')<CR>
+function! CompleteQuote(quote)
+    let ql = len(split(getline('.'), a:quote, 1))-1
+    " a:quote length is odd.
+    if (ql%2)==1
+        return a:quote
+    elseif getline('.')[col('.') - 1] == a:quote
+        return "\<Right>"
+    elseif '"'==a:quote && "vim"==&ft && 0==match(strpart(getline('.'), 0, col('.')-1), "^[\t ]*$")
+        " for vim comment.
+        return a:quote
+    elseif "'"==a:quote && 0==match(getline('.')[col('.')-2], "[a-zA-Z0-9]")
+        " for Name's Blog.
+        return a:quote
+    else
+        return a:quote . a:quote . "\<Left>"
+    endif
+endfunction
+
 
 "去除当前所编辑文件的路径信息，只保留文件名
 set guitablabel=%{ShortTabLabel()}
@@ -475,7 +535,7 @@ endif
 " =====================
 if has('syntax')
 " 默认编辑器配色
-    au BufNewFile,BufRead,BufEnter,WinEnter * colo molokai
+    au BufNewFile,BufRead,BufEnter,WinEnter * colo yytextmate
 
     " 各不同类型的文件配色不同
     au BufNewFile,BufRead,BufEnter,WinEnter *.wiki colo moria
