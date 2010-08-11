@@ -17,7 +17,15 @@
 :VimwikiToggleListItem	vimwiki.txt	/*:VimwikiToggleListItem*
 :VimwikiUISelect	vimwiki.txt	/*:VimwikiUISelect*
 :VimwikiVSplitWord	vimwiki.txt	/*:VimwikiVSplitWord*
+ConqueTerm	conque_term.txt	/*ConqueTerm*
 VimwikiWeblinkHandler	vimwiki.txt	/*VimwikiWeblinkHandler*
+conque_term-bugs	conque_term.txt	/*conque_term-bugs*
+conque_term-changelog	conque_term.txt	/*conque_term-changelog*
+conque_term-contribute	conque_term.txt	/*conque_term-contribute*
+conque_term-requirements	conque_term.txt	/*conque_term-requirements*
+conque_term-settings	conque_term.txt	/*conque_term-settings*
+conque_term-todo	conque_term.txt	/*conque_term-todo*
+conque_term-usage	conque_term.txt	/*conque_term-usage*
 g:vimwiki_auto_checkbox	vimwiki.txt	/*g:vimwiki_auto_checkbox*
 g:vimwiki_badsyms	vimwiki.txt	/*g:vimwiki_badsyms*
 g:vimwiki_browsers	vimwiki.txt	/*g:vimwiki_browsers*
