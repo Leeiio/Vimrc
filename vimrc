@@ -397,8 +397,8 @@ endfunction
 
 "Highlight current
 if has("gui_running")
-    set cursorline
-    set cursorcolumn
+    "set cursorline
+    "set cursorcolumn
     hi cursorline guibg=#555555
     hi CursorColumn guibg=#555555
 endif
@@ -459,6 +459,10 @@ else
     map <silent> <leader>ee :e ~/.vim/vimrc<cr>
     map <silent> <leader>rc :source ~/.vim/vimrc<cr> " 快速载入 vimrc 文件
 endif
+
+" 选中一段文字并全文搜索这段文字
+vnoremap  *  y/<C-R>=escape(@", '\\/.*$^~[]')<CR><CR>
+vnoremap  #  y?<C-R>=escape(@", '\\/.*$^~[]')<CR><CR>
 
 " =====================
 " 插件配置
