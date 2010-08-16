@@ -130,8 +130,11 @@ highlight LeaderTab guifg=#666666
 " 匹配行首tab
 match LeaderTab /\t/
 
+set wildmenu "打开 wildmenu 选项，启动具有菜单项提示的命令行自动完成。
+set matchpairs=(:),{:},[:],<:>
+set whichwrap=b,s,<,>,[,]
+
 " =====================
-" 多语言环境
 "    默认为 UTF-8 编码
 " =====================
 if has("multi_byte")
@@ -155,96 +158,24 @@ else
     echoerr "Sorry, this version of (g)vim was not compiled with +multi_byte"
 endif
 
+
 " =====================
-" AutoCmd 自动运行
+" 主题配色
 " =====================
-if has("autocmd")
-    filetype plugin indent on " 打开文件类型检测
+if has('syntax')
+    " 保证语法高亮
+    syntax on
 
-    augroup vimrcEx " 记住上次文件位置
-        au!
-        autocmd FileType text setlocal textwidth=80
-        autocmd BufReadPost *
-                    \ if line("'\"") > 0 && line("'\"") <= line("$") |
-                    \   exe "normal g`\"" |
-                    \ endif
-    augroup END
+    colorscheme yytextmate
+    let g:colors_name="yytextmate"
 
-    " 括号自动补全
-    function! AutoClose()
-        :inoremap ( ()<ESC>i
-        :inoremap " ""<ESC>i
-        :inoremap ' ''<ESC>i
-        :inoremap { {}<ESC>i
-        :inoremap [ []<ESC>i
-        :inoremap ) <c-r>=ClosePair(')')<CR>
-        :inoremap } <c-r>=ClosePair('}')<CR>
-        :inoremap ] <c-r>=ClosePair(']')<CR>
-    endf
+    " 默认编辑器配色
+    " au BufNewFile,BufRead,BufEnter,WinEnter * colo yytextmate
 
-    function! ClosePair(char)
-        if getline('.')[col('.') - 1] == a:char
-            return "\<Right>"
-        else
-            return a:char
-        endif
-    endf
+    " 各不同类型的文件配色不同
+    au BufNewFile,BufRead,BufEnter,WinEnter *.wiki colo moria
 
-    "auto close for PHP and Javascript script
-    au FileType css,html,php,c,python,javascript exe AutoClose()
-
-    " Auto Check Syntax
-    au BufWritePost,FileWritePost *.js,*.php call CheckSyntax(1)
-
-    " JavaScript 语法高亮
-    au FileType html,javascript let g:javascript_enable_domhtmlcss = 1
-    au BufRead,BufNewFile *.js setf jquery
-
-    " 给各语言文件添加 Dict
-    if has('win32')
-        au FileType php setlocal dict+=$VIM/vimfiles/dict/php_funclist.dict
-        au FileType css setlocal dict+=$VIM/vimfiles/dict/css.dict
-        au FileType javascript setlocal dict+=$VIM/vimfiles/dict/javascript.dict
-    else
-        au FileType php setlocal dict+=~/.vim/dict/php_funclist.dict
-        au FileType css setlocal dict+=~/.vim/dict/css.dict
-        au FileType javascript setlocal dict+=~/.vim/dict/javascript.dict
-    endif
-
-    " 自动最大化窗口
-    if has('gui_running')
-        if has("win32")
-            au GUIEnter * simalt ~x
-            "elseif has("unix")
-            "au GUIEnter * winpos 0 0
-            "set lines=999 columns=999
-        endif
-    endif
-
-    " 格式化 JavaScript 文件
-    au FileType javascript map <f12> :call g:Jsbeautify()<cr>
-    au FileType javascript set omnifunc=javascriptcomplete#CompleteJS
-
-    " 增加 ActionScript 语法支持
-    au BufNewFile,BufRead,BufEnter,WinEnter,FileType *.as setf actionscript
-
-    " CSS3 语法支持
-    au BufRead,BufNewFile *.css set ft=css syntax=css3
-
-    " 增加 Objective-C 语法支持
-    au BufNewFile,BufRead,BufEnter,WinEnter,FileType *.m,*.h setf objc
-
-    " 将指定文件的换行符转换成 UNIX 格式
-    au FileType php,javascript,html,css,python,vim,vimwiki set ff=unix
 endif
-
-" 自动载入VIM配置文件
-autocmd! bufwritepost vimrc source $MYVIMRC
-
-" 关闭VIM的时候保存会话，按F122读取会话
-set sessionoptions=buffers,sesdir,help,tabpages,winsize
-au VimLeave * mks! ~/Session.vim
-nmap <F7> :so ~/Session.vim<CR>
 
 " =====================
 " 图形界面
@@ -268,10 +199,6 @@ if has('gui_running')
         set guioptions+=e
     endif
 
-    set cursorline " 高亮光标所在的行
-    "hi cursorline guibg=#222222
-    "hi CursorColumn guibg=#333333
-
     if has("win32")
         " Windows 兼容配置
         source $VIMRUNTIME/mswin.vim
@@ -292,13 +219,15 @@ if has('gui_running')
 
     if has("mac") || has("gui_macvim")
         if has("gui_macvim")
+            " 开启抗锯齿渲染
+            set anti
             " MacVim 下的字体配置
             "set guifont=Courier_New:h14
             "set guifontwide=YouYuan:h14
             set guifont=YaHei_Consolas_Hybrid:h13
             set guifontwide=YaHei_Consolas_Hybrid:h12
 
-            set transparency=5
+            set transparency=8
             set lines=200 columns=180
 
             " 使用 MacVim 原生的全屏幕功能
@@ -397,11 +326,103 @@ endfunction
 
 "Highlight current
 if has("gui_running")
-    "set cursorline
-    "set cursorcolumn
-    hi cursorline guibg=#555555
-    hi CursorColumn guibg=#555555
+    set cursorline
+    set cursorcolumn
+    hi cursorline guibg=#0D142C
+    hi CursorColumn guibg=#0D142C
 endif
+
+" =====================
+" AutoCmd 自动运行
+" =====================
+if has("autocmd")
+    filetype plugin indent on " 打开文件类型检测
+
+    augroup vimrcEx " 记住上次文件位置
+        au!
+        autocmd FileType text setlocal textwidth=80
+        autocmd BufReadPost *
+                    \ if line("'\"") > 0 && line("'\"") <= line("$") |
+                    \   exe "normal g`\"" |
+                    \ endif
+    augroup END
+
+    " 括号自动补全
+    function! AutoClose()
+        :inoremap ( ()<ESC>i
+        :inoremap " ""<ESC>i
+        :inoremap ' ''<ESC>i
+        :inoremap { {}<ESC>i
+        :inoremap [ []<ESC>i
+        :inoremap ) <c-r>=ClosePair(')')<CR>
+        :inoremap } <c-r>=ClosePair('}')<CR>
+        :inoremap ] <c-r>=ClosePair(']')<CR>
+    endf
+
+    function! ClosePair(char)
+        if getline('.')[col('.') - 1] == a:char
+            return "\<Right>"
+        else
+            return a:char
+        endif
+    endf
+
+    "auto close for PHP and Javascript script
+    au FileType css,html,php,c,python,javascript exe AutoClose()
+
+    " Auto Check Syntax
+    au BufWritePost,FileWritePost *.js,*.php call CheckSyntax(1)
+
+    " JavaScript 语法高亮
+    au FileType html,javascript let g:javascript_enable_domhtmlcss = 1
+    au BufRead,BufNewFile *.js setf jquery
+
+    " 给各语言文件添加 Dict
+    if has('win32')
+        au FileType php setlocal dict+=$VIM/vimfiles/dict/php_funclist.dict
+        au FileType css setlocal dict+=$VIM/vimfiles/dict/css.dict
+        au FileType javascript setlocal dict+=$VIM/vimfiles/dict/javascript.dict
+    else
+        au FileType php setlocal dict+=~/.vim/dict/php_funclist.dict
+        au FileType css setlocal dict+=~/.vim/dict/css.dict
+        au FileType javascript setlocal dict+=~/.vim/dict/javascript.dict
+    endif
+
+    " 自动最大化窗口
+    if has('gui_running')
+        if has("win32")
+            au GUIEnter * simalt ~x
+            "elseif has("unix")
+            "au GUIEnter * winpos 0 0
+            "set lines=999 columns=999
+        endif
+    endif
+
+    " 格式化 JavaScript 文件
+    au FileType javascript map <f12> :call g:Jsbeautify()<cr>
+    au FileType javascript set omnifunc=javascriptcomplete#CompleteJS
+
+    " 增加 ActionScript 语法支持
+    au BufNewFile,BufRead,BufEnter,WinEnter,FileType *.as setf actionscript
+
+    " CSS3 语法支持
+    au BufRead,BufNewFile *.css set ft=css syntax=css3
+
+    " 增加 Objective-C 语法支持
+    au BufNewFile,BufRead,BufEnter,WinEnter,FileType *.m,*.h setf objc
+
+    " 将指定文件的换行符转换成 UNIX 格式
+    au FileType php,javascript,html,css,python,vim,vimwiki set ff=unix
+endif
+
+" 自动载入VIM配置文件
+autocmd! bufwritepost vimrc source $MYVIMRC
+
+" 关闭VIM的时候保存会话，按F122读取会话
+set sessionoptions=buffers,sesdir,help,tabpages,winsize
+au VimLeave * mks! ~/Session.vim
+nmap <F7> :so ~/Session.vim<CR>
+
 
 " =====================
 " 快捷键
@@ -484,13 +505,13 @@ if has("gui_macvim")
     set shell=/bin/tcsh
 
     " Set input method off
-    "set imdisable
+    set imdisable
 
     " Set QuickTemplatePath
     let g:QuickTemplatePath = $HOME.'/.vim/templates/'
 
     " 如果为空文件，则自动设置当前目录为桌面
-    lcd ~/Desktop/
+    "lcd ~/Desktop/
 endif
 
 " 日历插件
@@ -506,7 +527,7 @@ endif
 " VimWiki 配置
 if !exists("g:vimwiki_list")
     let g:vimwiki_list = [
-                \{"path": "~/Dropbox/VimWiki/wikiIndex", "path_html": "~/Dropbox/VimWiki/wikiHtml",  
+                \{"path": "~/Dropbox/VimWiki/wikiIndex", "path_html": "~/Dropbox/VimWiki/wikiHtml",
                 \   "html_footer": "~/Dropbox/VimWiki/wikiTemplate/footer.tpl", "html_header": "~/Dropbox/VimWiki/wikiTemplate/header.tpl",
                 \   "auto_export": 1}]
     let g:vimwiki_auto_checkbox = 0
@@ -516,8 +537,8 @@ if !exists("g:vimwiki_list")
         " 2、路径末尾最好加上目录分隔符
         let s:vimwiki_root = "F:/My Dropbox/VimWiki"
         let g:vimwiki_list = [
-                    \{"path": s:vimwiki_root."/wikiIndex/", 
-                    \   "html_footer": s:vimwiki_root."/wikiTemplate/footer.tpl", 
+                    \{"path": s:vimwiki_root."/wikiIndex/",
+                    \   "html_footer": s:vimwiki_root."/wikiTemplate/footer.tpl",
                     \   "html_header": s:vimwiki_root."/wikiTemplate/header.tpl",
                     \   "path_html": s:vimwiki_root."/wikiHtml/", "auto_export": 1}]
         let g:vimwiki_w32_dir_enc = 'cp936'
@@ -532,20 +553,6 @@ endif
 " on Windows, default charset is gbk
 if has("win32")
     let g:fontsize#encoding = "cp936"
-endif
-
-" =====================
-" 主题配色
-" =====================
-if has('syntax')
-" 默认编辑器配色
-    au BufNewFile,BufRead,BufEnter,WinEnter * colo yytextmate
-
-    " 各不同类型的文件配色不同
-    au BufNewFile,BufRead,BufEnter,WinEnter *.wiki colo moria
-
-    " 保证语法高亮
-    syntax on
 endif
 
 " vim: set et sw=4 ts=4 sts=4 fdm=marker ft=vim ff=unix fenc=utf8:
