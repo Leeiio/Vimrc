@@ -17,7 +17,7 @@ if has("gui_running")
 	:hi Cursor guifg=Black guibg=Yellow
 	
 	:hi LineNr guifg=#333333
-  	":hi LineNr guibg=#323232 guifg=#888888
+  	:hi LineNr guibg=#323232 guifg=#888888
 	:hi VertSplit guibg=#c2bfa5 guifg=grey40 gui=none
 	:hi Folded guibg=black guifg=grey40
 	:hi FoldColumn guibg=black guifg=grey20 
