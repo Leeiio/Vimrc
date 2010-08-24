@@ -498,6 +498,9 @@ vnoremap  #  y?<C-R>=escape(@", '\\/.*$^~[]')<CR><CR>
 " =====================
 " 插件配置
 " =====================
+"修改zencoding快捷鍵
+let g:user_zen_expandabbr_key = '<c-e>'
+
 " Javascript in CheckSyntax
 if has('win32')
     let g:checksyntax_cmd_javascript  = 'jsl -conf '.shellescape($VIM . '\vimfiles\plugin\jsl.conf')
