@@ -463,10 +463,11 @@ nmap <f2>  :BufExplorer<cr>
 imap <f4> <C-r>=GetDateStamp()<cr>
 
 " 新建 XHTML 、PHP、Javascript 文件的快捷键
-nmap <C-c><C-h> :NewQuickTemplateTab xhtml<cr>
-nmap <C-c><C-p> :NewQuickTemplateTab php<cr>
-nmap <C-c><C-j> :NewQuickTemplateTab javascript<cr>
-nmap <C-c><C-c> :NewQuickTemplateTab css<cr>
+nmap <leader>cxhtml :NewQuickTemplateTab xhtml<cr>
+nmap <leader>cphp :NewQuickTemplateTab php<cr>
+nmap <leader>cjs :NewQuickTemplateTab javascript<cr>
+nmap <leader>ccss :NewQuickTemplateTab css<cr>
+nmap <leader>cjquery :NewQuickTemplateTab jquery<cr>
 
 " 直接查看第一行生效的代码
 nmap <C-g><C-f> :call GotoFirstEffectiveLine()<cr>
