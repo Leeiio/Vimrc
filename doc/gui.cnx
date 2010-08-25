@@ -1,4 +1,4 @@
-*gui.txt*       For Vim version 7.2.  最近更新: 2008年6月
+*gui.txt*       For Vim version 7.3.  最近更新: 2010年5月
 
 
 		  VIM 参考手册    by Bram Moolenaar
@@ -34,12 +34,12 @@ GTK、GTK2 等，或者 "MS-Windows 32 bit GUI version"。
 
 GUI 和非 GUI 版本在 Vim 的 X11 版本上都可以运行。见 |gui-x11-start|。
 
-					*gui-init* *gvimrc* *.gvimrc* *_gvimrc*
+			*gui-init* *gvimrc* *.gvimrc* *_gvimrc* *$MYGVIMRC*
 gvimrc 文件是 GUI 专用的启动命令应该放置的地方。它总在 |vimrc| 文件之后执行。
 如果你有这样的文件，$MYGVIMRC 环境变量保存它的名字。
 
 当 GUI 开始时，开展以下初始化操作 (按照给出的顺序):
-- 'term' 选项设为 "builgin_gui"，复位终端选项到其 GUI 的缺省值
+- 'term' 选项设为 "builtin_gui"，复位终端选项到其 GUI 的缺省值
   |terminal-options|。
 - 如果存在系统菜单文件，执行之。该文件名通常是 "$VIMRUNTIME/menu.vim"。你需要
   用 ":version" 检查这一点。另见 |$VIMRUNTIME|。要跳过菜单载入，在
@@ -403,8 +403,10 @@ Vim  的长期用户不太用菜单。但是它的优势在你可以增加自己
 	:let did_install_default_menus = 1
 如果你也不想载入 Syntax 菜单: >
 	:let did_install_syntax_menu = 1
-如果你想要 Syntax 菜单，但不需要所有可用的语法文件项 (载入需要不少时间): >
-		:let skip_syntax_sel_menu = 1
+Syntax 菜单第一项可以用来显示包含所有可用的文件类型的菜单 (载入需要不少时间)。
+如果你确实想要启动时就同时得到所有文件类型，加入: >
+		:let do_syntax_sel_menu = 1
+
 <
 							*console-menus*
 尽管本文档讨论 GUI，你其实也可以在控制台模式使用菜单。你需要自行载入
@@ -474,7 +476,7 @@ Win32 GUI 版本模拟 Motif 的可撕下菜单。实际上，Motif 用户很容
 	模式		前面插入	后面附加	~
 	普通		不需要		不需要
 	可视		<C-C>		<C-\><C-G>
-	插入		<C-O>
+	插入		<C-\><C-O>
 	命令行		<C-C>		<C-\><C-G>
 	等待操作符	<C-C>		<C-\><C-G>
 
@@ -489,7 +491,7 @@ Win32 GUI 版本模拟 Motif 的可撕下菜单。实际上，Motif 用户很容
 
    :nmenu File.Next	:next^M
    :vmenu File.Next	^C:next^M^\^G
-   :imenu File.Next	^O:next^M
+   :imenu File.Next	^\^O:next^M
    :cmenu File.Next	^C:next^M^\^G
    :omenu File.Next	^C:next^M^\^G
 
@@ -739,7 +741,7 @@ Win32 GUI 版本模拟 Motif 的可撕下菜单。实际上，Motif 用户很容
 5.7 菜单示例					*menu-examples*
 
 这里是一个如何用 menu 增加菜单项的例子。你可以为光标下的关键字增加菜单项。使用
-寄存器 "z". >
+寄存器 "z"。 >
 
   :nmenu Words.Add\ Var		wb"zye:menu! Words.<C-R>z <C-R>z<CR>
   :nmenu Words.Remove\ Var	wb"zye:unmenu! Words.<C-R>z<CR>
@@ -749,7 +751,7 @@ Win32 GUI 版本模拟 Motif 的可撕下菜单。实际上，Motif 用户很容
   :imenu Words.Remove\ Var	<Esc>wb"zye:unmenu! Words.<C-R>z<CR>a
 
 (这里的右手边表达式使用 <> 记法，你可以复制/粘贴这里的文本来测试这些映射，或者
-把这些行加到你的 gvimrc 文件里；"<C-R>" 是 CTRL-R, "<CR>" 是 <CR> 键。|<>|)
+把这些行加到你的 gvimrc 文件里；"<C-R>" 是 CTRL-R，"<CR>" 是 <CR> 键。|<>|)
 
 
 5.8 工具提示 (Tooltips) 和菜单提示

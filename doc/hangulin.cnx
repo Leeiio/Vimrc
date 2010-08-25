@@ -1,9 +1,12 @@
-*hangulin.txt*  For Vim version 7.2.  最近更新: 2006年7月
+*hangulin.txt*  For Vim version 7.3.  最近更新: 2010年5月
 
 
 		  VIM 参考手册	By Chi-Deok Hwang and Sung-Hyun Nam
 				译者: Willis
 				http://vimcdoc.sf.net
+
+注意: |+hangul_input| 特性即将被删除。如果你希望保留，请给 Vim 用户邮件列表发
+信！
 
 简介						*hangul*
 ------------
@@ -97,6 +100,6 @@ Hanja 输入还没有支持。我也没有这方面计划。如果你确实想�
 请将意见、补丁和建议送到:
 
 				    Chi-Deok Hwang <hwang@mizi.co.kr>
- 				    Nam SungHyun <namsh@kldp.org>
+				    SungHyun Nam <goweol@gmail.com>
 
  vim:tw=78:ts=8:ft=help:norl:

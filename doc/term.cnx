@@ -1,4 +1,4 @@
-*term.txt*      For Vim version 7.2.  最近更新: 2006年7月
+*term.txt*      For Vim version 7.3.  最近更新: 2010年8月
 
 
 		  VIM 参考手册    by Bram Moolenaar
@@ -68,7 +68,7 @@ ALL_BUILTIN_TCAPS	++builtin_terms		全部
    if &term == "xterm"
      ... xterm 映射和设置 ...
    elseif &term =~ "vt10."
-     ... vt100, vt102 映射和设置 ...
+     ... vt100、vt102 映射和设置 ...
    endif
 <
 						*raw-terminal-mode*
@@ -176,7 +176,7 @@ termcap 项目、鼠标和一些其它的项目中使用 8 位字符，通常，
 ":set termcap"。
 
 通过设置合适的选项，你总是可以调整个别字符串的值。例如: >
-	:set t_ce=^V^[[K	(CTRL-V, <Esc>, [, K)
+	:set t_ce=^V^[[K	(CTRL-V，<Esc>，[，K)
 
 {Vi: 没有终端选项。你必须退出 Vi，修改 termcap 项，并重新打开}
 
@@ -361,6 +361,17 @@ xterm 里直接取得键码。响应的内容用于调整各种 t_ 代码。这�
 注意: 这只能在启动时完成。如果 xterm 选项在 Vim 启动以后被改变，这些转义序列就
 不再能识别了。
 
+							*xterm-resize*
+xterm 改变窗口大小的功能只用在 allowWindowOps 资源打开时才可用。有些系统或有些
+版本的 xterm 缺省该值是关闭的，因为有安全上的考虑。我们不肯定是否真有此必要。
+
+要覆盖缺省值，在 ~/.Xdefaults 或 ~/.Xresources 中放入:
+>
+	XTerm*allowWindowOps: 		true
+
+然后运行 "xrdb -merge .Xresources" 以激活之。用上下文菜单可以检查该值 (按住
+CTRL 键的同时按鼠标右键)，在 allow-window-ops 边上应该打了勾。
+
 							*termcap-colors*
 关于颜色的 注意 事项: 't_Co' 选项告诉 Vim 可用的颜色数。如果非零，'t_AB' 和
 't_AF' 选项可以用来设置颜色。如果这些都不可用，就使用 't_Sb' 和 't_Sf'。't_me'
@@ -377,7 +388,7 @@ xterm 里直接取得键码。响应的内容用于调整各种 t_ 代码。这�
     endif
 <
 注意: 当 Vim 退出时，将保留普通模式的光标形状，而不会恢复 Vim 启动之前的形状。
-{仅当编译时加入 +cursorshape 特性才支持}
+{仅当编译时加入 |+cursorshape| 特性才支持}
 
 							*termcap-title*
 如果终端允许通过发送字符串设置标题的话，'t_ts' 和 't_fs' 选项用来设置窗口的标

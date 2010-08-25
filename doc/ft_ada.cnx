@@ -1,4 +1,4 @@
-*ft_ada.txt*	For Vim version 7.2.  最近更新: 2008年6月
+*ft_ada.txt*	For Vim version 7.3.  最近更新: 2010年7月
 
 
 		    ADA 文 件 类 型 参 考 手 册~
@@ -127,8 +127,8 @@ Exuberant Ctags 的 Ada 分析器还很新 - 不要过多期望完整的支持�
 								*ada-compiler*
 
 Ada 模式支持多个 Ada 编译器，并会自动在打开 Ada 源代码时载入
-|g:ada_default_compiler|设置的编译器。提供的编译器插件分为两部分: 实际的编译器
-插件和支持函数及变量的集合。这样方便了为你的开发环境专门定制的编译器插件的开
+|g:ada_default_compiler| 设置的编译器。提供的编译器插件分为两部分: 实际的编译
+器插件和支持函数及变量的集合。这样方便了为你的开发环境专门定制的编译器插件的开
 发。
 
 ------------------------------------------------------------------------------
@@ -150,15 +150,15 @@ GNAT 对 象 ~
 
 							       *g:gnat.Make()*
 g:gnat.Make()
-		调用 |g:gnat.Make_Command|并在 |quickfix| 窗口里显示结果。
+		调用 |g:gnat.Make_Command| 并在 |quickfix| 窗口里显示结果。
 
 							     *g:gnat.Pretty()*
 g:gnat.Pretty()
-		调用 |g:gnat.Pretty_Command|
+		调用 |g:gnat.Pretty_Program|
 
 							       *g:gnat.Find()*
 g:gnat.Find()
-		调用 |g:gnat.Find_Command|
+		调用 |g:gnat.Find_Program|
 
 							       *g:gnat.Tags()*
 g:gnat.Tags()
@@ -234,7 +234,7 @@ g:decada.Error_Format|	string
 
 							*g:ada_standard_types*
 g:ada_standard_types	  布尔型 (如果存在即为真)
-		高亮 Standard 包里的类型 (例如，"Float")
+		高亮 Standard 包里的类型 (例如，"Float")。
 
 							  *g:ada_space_errors*
 						  *g:ada_no_trail_space_error*
@@ -255,7 +255,7 @@ g:ada_line_errors	  布尔型 (如果存在即为真)
 
 							 *g:ada_rainbow_color*
 g:ada_rainbow_color	  布尔型 (如果存在即为真)
-		'(' 和 ')' 使用彩虹色。为此你需要 rainbox_parenthesis
+		'(' 和 ')' 使用彩虹色。为此你需要 rainbox_parenthesis。
 
 							       *g:ada_folding*
 g:ada_folding		  集合型 ('sigpft')
@@ -300,7 +300,7 @@ g:ada_omni_with_keywords
 		(|i_CTRL-X_CTRL-U|)。
 
 						      *g:ada_extended_tagging*
-g:ada_extended_tagging	  枚举型 ('jump', 'list')
+g:ada_extended_tagging	  枚举型 ('jump'、'list')
 		使用扩展标签，可用如下两个选项
 		    'jump': 使用 tjump 进行跳转
 		    'list': 把标签加到 quick fix 列表。
@@ -333,11 +333,11 @@ g:ada_default_compiler	  字符串
 							     *ft-ada-commands*
 
 :AdaRainbow							 *:AdaRainbow*
-		切换用于 '(' 和 ')' 的彩虹颜色 (|g:ada_rainbow_color|) 模式
+		切换用于 '(' 和 ')' 的彩虹颜色 (|g:ada_rainbow_color|) 模式。
 		
 
 :AdaLines							   *:AdaLines*
-		切换行错误 (|g:ada_line_errors|) 显示
+		切换行错误 (|g:ada_line_errors|) 显示。
 
 :AdaSpaces							  *:AdaSpaces*
 		切换空格错误 (|g:ada_space_errors|) 显示。
@@ -384,7 +384,7 @@ g:decada		  对象
 
 							     *g:ada#WordRegex*
 g:ada#WordRegex		  字符串
-		搜索 Ada 单词的正规表达式
+		搜索 Ada 单词的正规表达式。
 
 							  *g:ada#DotWordRegex*
 g:ada#DotWordRegex	  字符串
@@ -392,7 +392,7 @@ g:ada#DotWordRegex	  字符串
 
 							       *g:ada#Comment*
 g:ada#Comment		  字符串
-		搜索 Ada 注释的正规表达式
+		搜索 Ada 注释的正规表达式。
 
 							      *g:ada#Keywords*
 g:ada#Keywords		  字典的列表
@@ -413,7 +413,7 @@ ada#Word([{line}, {col}])					  *ada#Word()*
 
 ada#List_Tag([{line}, {col}])				      *ada#Listtags()*
 		在 quick-fix 窗口列出光标所在 (或在任何给定的行/列上) 的 Ada 
-		实体的所有出现
+		实体的所有出现。
 
 ada#Jump_Tag ({ident}, {mode})				      *ada#Jump_Tag()*
 		在标签跳转列表中列出光标所在 (或在任何给定的行/列上) 的 Ada 实
