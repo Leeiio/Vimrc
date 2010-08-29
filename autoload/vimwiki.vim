@@ -1,3 +1,4 @@
+" vim:tabstop=2:shiftwidth=2:expandtab:foldmethod=marker:textwidth=79
 " Vimwiki autoload plugin file
 " Author: Maxim Kim <habamax@gmail.com>
 " Home: http://code.google.com/p/vimwiki/
@@ -17,20 +18,14 @@ let s:badsymbols = '['.g:vimwiki_badsyms.g:vimwiki_stripsym.'<>|?*:"]'
 
 " MISC helper functions {{{
 
-" This function is double defined.
-" TODO: refactor common functions into new module.
-function! s:chomp_slash(str) "{{{
+function! vimwiki#chomp_slash(str) "{{{
   return substitute(a:str, '[/\\]\+$', '', '')
 endfunction "}}}
-
-function! s:is_windows()
-  return has("win32") || has("win64") || has("win95") || has("win16")
-endfunction
 
 function! vimwiki#mkdir(path) "{{{
   let path = expand(a:path)
   if !isdirectory(path) && exists("*mkdir")
-    let path = s:chomp_slash(path)
+    let path = vimwiki#chomp_slash(path)
     if s:is_windows() && !empty(g:vimwiki_w32_dir_enc)
       let path = iconv(path, &enc, g:vimwiki_w32_dir_enc)
     endif
@@ -53,7 +48,7 @@ function! vimwiki#subdir(path, filename)"{{{
   let path = expand(a:path)
   let filename = expand(a:filename)
   let idx = 0
-  while path[idx] == filename[idx]
+  while path[idx] ==? filename[idx]
     let idx = idx + 1
   endwhile
 
@@ -70,7 +65,7 @@ function! vimwiki#current_subdir()"{{{
 endfunction"}}}
 
 function! vimwiki#open_link(cmd, link, ...) "{{{
-  if s:is_link_to_non_wiki_file(a:link)
+  if vimwiki#is_non_wiki_link(a:link)
     call s:edit_file(a:cmd, a:link)
   else
     if a:0
@@ -79,7 +74,18 @@ function! vimwiki#open_link(cmd, link, ...) "{{{
       let vimwiki_prev_link = [expand('%:p'), getpos('.')]
     endif
 
-    call s:edit_file(a:cmd, VimwikiGet('path').a:link.VimwikiGet('ext'))
+    if vimwiki#is_link_to_dir(a:link)
+      if g:vimwiki_dir_link == ''
+        call s:edit_file(a:cmd, VimwikiGet('path').a:link)
+      else
+        call s:edit_file(a:cmd,
+              \ VimwikiGet('path').a:link.
+              \ g:vimwiki_dir_link.
+              \ VimwikiGet('ext'))
+      endif
+    else
+      call s:edit_file(a:cmd, VimwikiGet('path').a:link.VimwikiGet('ext'))
+    endif
 
     if exists('vimwiki_prev_link')
       let b:vimwiki_prev_link = vimwiki_prev_link
@@ -87,6 +93,84 @@ function! vimwiki#open_link(cmd, link, ...) "{{{
   endif
 endfunction
 " }}}
+
+function! vimwiki#select(wnum)"{{{
+  if a:wnum < 1 || a:wnum > len(g:vimwiki_list)
+    return
+  endif
+  if &ft == 'vimwiki'
+    let b:vimwiki_idx = g:vimwiki_current_idx
+  endif
+  let g:vimwiki_current_idx = a:wnum - 1
+endfunction
+" }}}
+
+function! vimwiki#generate_links()"{{{
+  let links = s:get_links('*'.VimwikiGet('ext'))
+
+  " We don't want link to itself.
+  let cur_link = expand('%:t:r')
+  call filter(links, 'v:val != cur_link')
+
+  if len(links)
+    call append(line('$'), '= Generated Links =')
+  endif
+
+  call sort(links)
+
+  for link in links
+    if s:is_wiki_word(link)
+      call append(line('$'), '- '.link)
+    else
+      call append(line('$'), '- [['.link.']]')
+    endif
+  endfor
+endfunction " }}}
+
+function! vimwiki#goto(key) "{{{
+    call s:edit_file(':e',
+          \ VimwikiGet('path').
+          \ a:key.
+          \ VimwikiGet('ext'))
+endfunction "}}}
+
+function! s:is_windows() "{{{
+  return has("win32") || has("win64") || has("win95") || has("win16")
+endfunction "}}}
+
+function! s:get_links(pat) "{{{
+  " search all wiki files in 'path' and its subdirs.
+  let subdir = vimwiki#current_subdir()
+
+  " if current wiki is temporary -- was added by an arbitrary wiki file then do
+  " not search wiki files in subdirectories. Or it would hang the system if
+  " wiki file was created in $HOME or C:/ dirs.
+  if VimwikiGet('temp')
+    let search_dirs = ''
+  else
+    let search_dirs = '**/'
+  endif
+  let globlinks = glob(VimwikiGet('path').subdir.search_dirs.a:pat)
+
+  " remove extensions (and backup extensions too: .wiki~)
+  let globlinks = substitute(globlinks, '\'.VimwikiGet('ext').'\~\?', "", "g")
+  let links = split(globlinks, '\n')
+
+  " remove paths
+  let rem_path = escape(expand(VimwikiGet('path')).subdir, '\')
+  call map(links, 'substitute(v:val, rem_path, "", "g")')
+
+  " Remove trailing slashes.
+  call map(links, 'substitute(v:val, "[/\\\\]*$", "", "g")')
+
+  return links
+endfunction "}}}
+
+" Builtin cursor doesn't work right with unicode characters.
+function! s:cursor(lnum, cnum) "{{{
+    exe a:lnum
+    exe 'normal! 0'.a:cnum.'|'
+endfunction "}}}
 
 function! s:filename(link) "{{{
   let result = vimwiki#safe_link(a:link)
@@ -100,7 +184,7 @@ endfunction
 " }}}
 
 function! s:is_wiki_word(str) "{{{
-  if a:str =~ g:vimwiki_word1 && a:str !~ '[[:space:]\\/]'
+  if a:str =~ g:vimwiki_rxWikiWord && a:str !~ '[[:space:]\\/]'
     return 1
   endif
   return 0
@@ -164,15 +248,24 @@ function! s:strip_word(word) "{{{
 endfunction
 " }}}
 
-function! s:is_link_to_non_wiki_file(word) "{{{
-  " Check if word is link to a non-wiki file.
-  " The easiest way is to check if it has extension like .txt or .html
-  if a:word =~ '\.\w\{1,4}$'
+function! vimwiki#is_non_wiki_link(lnk) "{{{
+  let exts = '.\+\.\%('.
+          \ join(split(g:vimwiki_file_exts, '\s*,\s*'), '\|').
+          \ '\)$'
+  if a:lnk =~ exts
     return 1
   endif
   return 0
-endfunction
-" }}}
+endfunction "}}}
+
+function! vimwiki#is_link_to_dir(link) "{{{
+  " Check if link is to a directory.
+  " It should be ended with \ or /.
+  if a:link =~ '.\+[/\\]$'
+    return 1
+  endif
+  return 0
+endfunction " }}}
 
 function! s:print_wiki_list() "{{{
   let idx = 0
@@ -188,17 +281,6 @@ function! s:print_wiki_list() "{{{
     let idx += 1
   endwhile
   echohl None
-endfunction
-" }}}
-
-function! vimwiki#select(wnum)"{{{
-  if a:wnum < 1 || a:wnum > len(g:vimwiki_list)
-    return
-  endif
-  if &ft == 'vimwiki'
-    let b:vimwiki_idx = g:vimwiki_current_idx
-  endif
-  let g:vimwiki_current_idx = a:wnum - 1
 endfunction
 " }}}
 
@@ -224,19 +306,23 @@ endfunction
 function! s:update_wiki_links_dir(dir, old_fname, new_fname) " {{{
   let old_fname = substitute(a:old_fname, '[/\\]', '[/\\\\]', 'g')
   let new_fname = a:new_fname
+  let old_fname_r = old_fname
+  let new_fname_r = new_fname
 
-  if !s:is_wiki_word(new_fname)
-    let new_fname = '[['.new_fname.']]'
+  if !s:is_wiki_word(new_fname) && s:is_wiki_word(old_fname)
+    let new_fname_r = '[['.new_fname.']]'
   endif
+
   if !s:is_wiki_word(old_fname)
-    let old_fname = '\[\['.vimwiki#unsafe_link(old_fname).
-          \ '\%(|.*\)\?\%(\]\[.*\)\?\]\]'
+    let old_fname_r = '\[\[\zs'.vimwiki#unsafe_link(old_fname).
+          \ '\ze\%(|.*\)\?\%(\]\[.*\)\?\]\]'
   else
-    let old_fname = '\<'.old_fname.'\>'
+    let old_fname_r = '\<'.old_fname.'\>'
   endif
+
   let files = split(glob(VimwikiGet('path').a:dir.'*'.VimwikiGet('ext')), '\n')
   for fname in files
-    call s:update_wiki_link(fname, old_fname, new_fname)
+    call s:update_wiki_link(fname, old_fname_r, new_fname_r)
   endfor
 endfunction
 " }}}
@@ -278,8 +364,7 @@ function! s:update_wiki_links(old_fname, new_fname) " {{{
           \ new_dir.old_fname, new_dir.new_fname)
     let idx = idx + 1
   endwhile
-endfunction
-" }}}
+endfunction " }}}
 
 function! s:get_wiki_buffers() "{{{
   let blist = []
@@ -295,60 +380,178 @@ function! s:get_wiki_buffers() "{{{
     let bcount = bcount + 1
   endwhile
   return blist
-endfunction
-" }}}
+endfunction " }}}
 
 function! s:open_wiki_buffer(item) "{{{
   call s:edit_file('e', a:item[0])
   if !empty(a:item[1])
     call setbufvar(a:item[0], "vimwiki_prev_link", a:item[1])
   endif
-endfunction
-" }}}
+endfunction " }}}
 
 " }}}
 
 " SYNTAX highlight {{{
-function! vimwiki#WikiHighlightWords() "{{{
-  " search all wiki files in 'path' and its subdirs.
-  let subdir = vimwiki#current_subdir()
-  let wikies = glob(VimwikiGet('path').subdir.'**/*'.VimwikiGet('ext'))
+function! vimwiki#highlight_links() "{{{
+  try
+    syntax clear VimwikiNoExistsLink
+    syntax clear VimwikiNoExistsLinkT
+    syntax clear VimwikiLink
+    syntax clear VimwikiLinkT
+  catch
+  endtry
 
-  " remove .wiki extensions
-  let wikies = substitute(wikies, '\'.VimwikiGet('ext'), "", "g")
-  let g:vimwiki_wikiwords = split(wikies, '\n')
+  "" use max highlighting - could be quite slow if there are too many wikifiles
+  if VimwikiGet('maxhi')
+    " Every WikiWord is nonexistent
+    if g:vimwiki_camel_case
+      execute 'syntax match VimwikiNoExistsLink /'.g:vimwiki_rxWikiWord.'/ display'
+      execute 'syntax match VimwikiNoExistsLinkT /'.g:vimwiki_rxWikiWord.'/ display contained'
+    endif
+    execute 'syntax match VimwikiNoExistsLink /'.g:vimwiki_rxWikiLink1.'/ display contains=VimwikiNoLinkChar'
+    execute 'syntax match VimwikiNoExistsLink /'.g:vimwiki_rxWikiLink2.'/ display contains=VimwikiNoLinkChar'
 
-  " remove backup files (.wiki~)
-  call filter(g:vimwiki_wikiwords, 'v:val !~ ''.*\~$''')
+    execute 'syntax match VimwikiNoExistsLinkT /'.g:vimwiki_rxWikiLink1.'/ display contained'
+    execute 'syntax match VimwikiNoExistsLinkT /'.g:vimwiki_rxWikiLink2.'/ display contained'
 
-  " remove paths
-  let rem_path = escape(expand(VimwikiGet('path')).subdir, '\')
-  call map(g:vimwiki_wikiwords, 'substitute(v:val, rem_path, "", "g")')
+    " till we find them in vimwiki's path
+    call s:highlight_existed_links()
+  else
+    " A WikiWord (unqualifiedWikiName)
+    execute 'syntax match VimwikiLink /\<'.g:vimwiki_rxWikiWord.'\>/'
+    " A [[bracketed wiki word]]
+    execute 'syntax match VimwikiLink /'.g:vimwiki_rxWikiLink1.'/ display contains=VimwikiLinkChar'
+    execute 'syntax match VimwikiLink /'.g:vimwiki_rxWikiLink2.'/ display contains=VimwikiLinkChar'
+
+    execute 'syntax match VimwikiLinkT /\<'.g:vimwiki_rxWikiWord.'\>/ display contained'
+    execute 'syntax match VimwikiLinkT /'.g:vimwiki_rxWikiLink1.'/ display contained'
+    execute 'syntax match VimwikiLinkT /'.g:vimwiki_rxWikiLink2.'/ display contained'
+  endif
+
+  execute 'syntax match VimwikiLink `'.g:vimwiki_rxWeblink.'` display contains=@NoSpell'
+endfunction "}}}
+
+function! s:highlight_existed_links() "{{{
+  let links = s:get_links('*'.VimwikiGet('ext'))
 
   " Links with subdirs should be highlighted for linux and windows separators
   " Change \ or / to [/\\]
   let os_p = '[/\\]'
   let os_p2 = escape(os_p, '\')
-  call map(g:vimwiki_wikiwords, 'substitute(v:val, os_p, os_p2, "g")')
+  call map(links, 'substitute(v:val, os_p, os_p2, "g")')
 
-  for word in g:vimwiki_wikiwords
+  for link in links
     if g:vimwiki_camel_case &&
-          \ word =~ g:vimwiki_word1 && !s:is_link_to_non_wiki_file(word)
-      execute 'syntax match VimwikiWord /\%(^\|[^!]\)\@<=\<'.word.'\>/'
+          \ link =~ g:vimwiki_rxWikiWord && !vimwiki#is_non_wiki_link(link)
+      execute 'syntax match VimwikiLink /!\@<!\<'.link.'\>/ display'
     endif
-    execute 'syntax match VimwikiWord /\[\[\<'.
-          \ vimwiki#unsafe_link(word).
-          \ '\>\%(|\+.*\)*\]\]/'
-    execute 'syntax match VimwikiWord /\[\[\<'.
-          \ vimwiki#unsafe_link(word).
-          \ '\>\]\[.\+\]\]/'
-  endfor
-  execute 'syntax match VimwikiWord /\[\[.\+\.\%(jpg\|png\|gif\)\%(|\+.*\)*\]\]/'
-  execute 'syntax match VimwikiWord /\[\[.\+\.\%(jpg\|png\|gif\)\]\[.\+\]\]/'
-endfunction
-" }}}
+    execute 'syntax match VimwikiLink /\[\['.
+          \ escape(vimwiki#unsafe_link(link), '~&$.*').
+          \ '\%(|\+.\{-}\)\{-}\]\]/ display contains=VimwikiLinkChar'
+    execute 'syntax match VimwikiLink /\[\['.
+          \ escape(vimwiki#unsafe_link(link), '~&$.*').
+          \ '\]\[.\{-1,}\]\]/ display contains=VimwikiLinkChar'
 
-function! vimwiki#hl_exists(hl)"{{{
+    execute 'syntax match VimwikiLinkT /\[\['.
+          \ escape(vimwiki#unsafe_link(link), '~&$.*').
+          \ '\%(|\+.\{-}\)\{-}\]\]/ display contained'
+    execute 'syntax match VimwikiLinkT /\[\['.
+          \ escape(vimwiki#unsafe_link(link), '~&$.*').
+          \ '\]\[.\{-1,}\]\]/ display contained'
+  endfor
+  execute 'syntax match VimwikiLink /\[\[.\+\.\%(jpg\|png\|gif\)\%(|\+.*\)*\]\]/ display contains=VimwikiLinkChar'
+  execute 'syntax match VimwikiLink /\[\[.\+\.\%(jpg\|png\|gif\)\]\[.\+\]\]/ display contains=VimwikiLinkChar'
+
+  execute 'syntax match VimwikiLinkT /\[\[.\+\.\%(jpg\|png\|gif\)\%(|\+.*\)*\]\]/ display contained'
+  execute 'syntax match VimwikiLinkT /\[\[.\+\.\%(jpg\|png\|gif\)\]\[.\+\]\]/ display contained'
+
+  " Issue 103: Always highlight links to non-wiki files as existed.
+  execute 'syntax match VimwikiLink /\[\[.\+\.\%('.
+        \join(split(g:vimwiki_file_exts, '\s*,\s*'), '\|').
+        \'\)\%(|\+.*\)*\]\]/ display contains=VimwikiLinkChar'
+  execute 'syntax match VimwikiLink /\[\[.\+\.\%('.
+        \join(split(g:vimwiki_file_exts, '\s*,\s*'), '\|').
+        \'\)\]\[.\+\]\]/ display contains=VimwikiLinkChar'
+
+  execute 'syntax match VimwikiLinkT /\[\[.\+\.\%('.
+        \join(split(g:vimwiki_file_exts, '\s*,\s*'), '\|').
+        \'\)\%(|\+.*\)*\]\]/ display contained'
+  execute 'syntax match VimwikiLinkT /\[\[.\+\.\%('.
+        \join(split(g:vimwiki_file_exts, '\s*,\s*'), '\|').
+        \'\)\]\[.\+\]\]/ display contained'
+
+  " highlight dirs
+  let dirs = s:get_links('*/')
+  call map(dirs, 'substitute(v:val, os_p, os_p2, "g")')
+  for dir in dirs
+    execute 'syntax match VimwikiLink /\[\['.
+          \ escape(vimwiki#unsafe_link(dir), '~&$.*').
+          \ '[/\\]*\%(|\+.*\)*\]\]/ display contains=VimwikiLinkChar'
+    execute 'syntax match VimwikiLink /\[\['.
+          \ escape(vimwiki#unsafe_link(dir), '~&$.*').
+          \ '[/\\]*\%(\]\[\+.*\)*\]\]/ display contains=VimwikiLinkChar'
+
+    execute 'syntax match VimwikiLinkT /\[\['.
+          \ escape(vimwiki#unsafe_link(dir), '~&$.*').
+          \ '[/\\]*\%(|\+.*\)*\]\]/ display contained'
+    execute 'syntax match VimwikiLinkT /\[\['.
+          \ escape(vimwiki#unsafe_link(dir), '~&$.*').
+          \ '[/\\]*\%(\]\[\+.*\)*\]\]/ display contained'
+  endfor
+endfunction "}}}
+
+function! vimwiki#setup_colors() "{{{
+
+  function! s:set_visible_ignore_color() "{{{
+    if !exists("g:colors_name") || g:colors_name == 'default'
+      if &background == 'light'
+        hi VimwikiIgnore guifg=#d0d0d0
+      else
+        hi VimwikiIgnore guifg=#505050
+      endif
+    else
+      hi link VimwikiIgnore Normal
+    endif
+  endfunction "}}}
+
+  let hlfg_ignore = vimwiki#get_hl_param('Ignore', 'guifg')
+  let hlbg_normal = vimwiki#get_hl_param('Normal', 'guibg')
+  if hlfg_ignore == 'bg' || hlfg_ignore == hlbg_normal
+    call s:set_visible_ignore_color()
+  else
+    hi link VimwikiIgnore Ignore
+  endif
+
+  if g:vimwiki_hl_headers == 0
+    hi def link VimwikiHeader Title
+    return
+  endif
+
+  if &background == 'light'
+    hi def VimwikiHeader1 guibg=bg guifg=#aa5858 gui=bold ctermfg=DarkRed
+    hi def VimwikiHeader2 guibg=bg guifg=#507030 gui=bold ctermfg=DarkGreen
+    hi def VimwikiHeader3 guibg=bg guifg=#1030a0 gui=bold ctermfg=DarkBlue
+    hi def VimwikiHeader4 guibg=bg guifg=#103040 gui=bold ctermfg=Black
+    hi def VimwikiHeader5 guibg=bg guifg=#505050 gui=bold ctermfg=Black
+    hi def VimwikiHeader6 guibg=bg guifg=#636363 gui=bold ctermfg=Black
+  else
+    hi def VimwikiHeader1 guibg=bg guifg=#e08090 gui=bold ctermfg=Red
+    hi def VimwikiHeader2 guibg=bg guifg=#80e090 gui=bold ctermfg=Green
+    hi def VimwikiHeader3 guibg=bg guifg=#6090e0 gui=bold ctermfg=Blue
+    hi def VimwikiHeader4 guibg=bg guifg=#c0c0f0 gui=bold ctermfg=White
+    hi def VimwikiHeader5 guibg=bg guifg=#e0e0f0 gui=bold ctermfg=White
+    hi def VimwikiHeader6 guibg=bg guifg=#f0f0f0 gui=bold ctermfg=White
+  endif
+endfunction "}}}
+
+function vimwiki#get_hl_param(hgroup, hparam) "{{{
+  redir => hlstatus
+  exe "silent hi ".a:hgroup
+  redir END
+  return matchstr(hlstatus, a:hparam.'\s*=\s*\zs\S\+')
+endfunction "}}}
+
+function! vimwiki#hl_exists(hl) "{{{
   if !hlexists(a:hl)
     return 0
   endif
@@ -388,26 +591,38 @@ function! vimwiki#nested_syntax(filetype, start, end, textSnipHl) abort "{{{
   else
     unlet b:current_syntax
   endif
-  execute 'syntax region textSnip'.ft.'
-        \ matchgroup='.a:textSnipHl.'
-        \ start="'.a:start.'" end="'.a:end.'"
-        \ contains=@'.group
+  execute 'syntax region textSnip'.ft.
+        \ ' matchgroup='.a:textSnipHl.
+        \ ' start="'.a:start.'" end="'.a:end.'"'.
+        \ ' contains=@'.group.' keepend'
+
+  " A workaround to Issue 115: Nested Perl syntax highlighting differs from
+  " regular one.
+  " Perl syntax file has perlFunctionName which is usually has no effect due to
+  " 'contained' flag. Now we have 'syntax include' that makes all the groups
+  " included as 'contained' into specific group.
+  " Here perlFunctionName (with quite an angry regexp "\h\w*[^:]") clashes with
+  " the rest syntax rules as now it has effect being really 'contained'.
+  " Clear it!
+  if ft =~ 'perl'
+    syntax clear perlFunctionName
+  endif
 endfunction "}}}
 
 "}}}
 
 " WIKI functions {{{
-function! vimwiki#WikiNextWord() "{{{
-  call s:search_word(g:vimwiki_rxWikiWord.'\|'.g:vimwiki_rxWeblink, '')
+function! vimwiki#find_next_link() "{{{
+  call s:search_word(g:vimwiki_rxWikiLink.'\|'.g:vimwiki_rxWeblink, '')
 endfunction
 " }}}
 
-function! vimwiki#WikiPrevWord() "{{{
-  call s:search_word(g:vimwiki_rxWikiWord.'\|'.g:vimwiki_rxWeblink, 'b')
+function! vimwiki#find_prev_link() "{{{
+  call s:search_word(g:vimwiki_rxWikiLink.'\|'.g:vimwiki_rxWeblink, 'b')
 endfunction
 " }}}
 
-function! vimwiki#WikiFollowWord(split) "{{{
+function! vimwiki#follow_link(split) "{{{
   if a:split == "split"
     let cmd = ":split "
   elseif a:split == "vsplit"
@@ -416,11 +631,11 @@ function! vimwiki#WikiFollowWord(split) "{{{
     let cmd = ":e "
   endif
 
-  let link = s:strip_word(s:get_word_at_cursor(g:vimwiki_rxWikiWord))
+  let link = s:strip_word(s:get_word_at_cursor(g:vimwiki_rxWikiLink))
   if link == ""
     let weblink = s:strip_word(s:get_word_at_cursor(g:vimwiki_rxWeblink))
     if weblink != ""
-      call VimwikiWeblinkHandler(weblink)
+      call VimwikiWeblinkHandler(escape(weblink, '#'))
     else
       execute "normal! \n"
     endif
@@ -430,20 +645,18 @@ function! vimwiki#WikiFollowWord(split) "{{{
   let subdir = vimwiki#current_subdir()
   call vimwiki#open_link(cmd, subdir.link)
 
-endfunction
-" }}}
+endfunction " }}}
 
-function! vimwiki#WikiGoBackWord() "{{{
+function! vimwiki#go_back_link() "{{{
   if exists("b:vimwiki_prev_link")
     " go back to saved WikiWord
     let prev_word = b:vimwiki_prev_link
     execute ":e ".substitute(prev_word[0], '\s', '\\\0', 'g')
     call setpos('.', prev_word[1])
   endif
-endfunction
-" }}}
+endfunction " }}}
 
-function! vimwiki#WikiGoHome(index) "{{{
+function! vimwiki#goto_index(index) "{{{
   call vimwiki#select(a:index)
   call vimwiki#mkdir(VimwikiGet('path'))
 
@@ -451,17 +664,15 @@ function! vimwiki#WikiGoHome(index) "{{{
     execute ':e '.fnameescape(
           \ VimwikiGet('path').VimwikiGet('index').VimwikiGet('ext'))
   catch /E37/ " catch 'No write since last change' error
-    " this is really unsecure!!!
-    execute ':'.VimwikiGet('gohome').' '.
+    execute ':split '.
           \ VimwikiGet('path').
           \ VimwikiGet('index').
           \ VimwikiGet('ext')
   catch /E325/ " catch 'ATTENTION' error (:h E325)
   endtry
-endfunction
-"}}}
+endfunction "}}}
 
-function! vimwiki#WikiDeleteWord() "{{{
+function! vimwiki#delete_link() "{{{
   "" file system funcs
   "" Delete WikiWord you are in from filesystem
   let val = input('Delete ['.expand('%').'] (y/n)? ', "")
@@ -481,10 +692,9 @@ function! vimwiki#WikiDeleteWord() "{{{
   if expand('%:p') != ""
     execute "e"
   endif
-endfunction
-"}}}
+endfunction "}}}
 
-function! vimwiki#WikiRenameWord() "{{{
+function! vimwiki#rename_link() "{{{
   "" Rename WikiWord, update all links to renamed WikiWord
   let subdir = vimwiki#current_subdir()
   let old_fname = subdir.expand('%:t')
@@ -509,18 +719,17 @@ function! vimwiki#WikiRenameWord() "{{{
     return
   endif
 
-  let new_link = subdir.new_link
-
   " check new_fname - it should be 'good', not empty
   if substitute(new_link, '\s', '', 'g') == ''
     echomsg 'vimwiki: Cannot rename to an empty filename!'
     return
   endif
-  if s:is_link_to_non_wiki_file(new_link)
+  if vimwiki#is_non_wiki_link(new_link)
     echomsg 'vimwiki: Cannot rename to a filename with extension (ie .txt .html)!'
     return
   endif
 
+  let new_link = subdir.new_link
   let new_link = s:strip_word(new_link)
   let new_fname = VimwikiGet('path').s:filename(new_link).VimwikiGet('ext')
 
@@ -583,16 +792,15 @@ function! vimwiki#WikiRenameWord() "{{{
   echomsg old_fname." is renamed to ".new_fname
 
   let &more = setting_more
-endfunction
-" }}}
+endfunction " }}}
 
-function! vimwiki#WikiUISelect()"{{{
+function! vimwiki#ui_select()"{{{
   call s:print_wiki_list()
   let idx = input("Select Wiki (specify number): ")
   if idx == ""
     return
   endif
-  call vimwiki#WikiGoHome(idx)
+  call vimwiki#goto_index(idx)
 endfunction
 "}}}
 
@@ -601,7 +809,7 @@ endfunction
 " TEXT OBJECTS functions {{{
 
 function! vimwiki#TO_header(inner, visual) "{{{
-  if !search('^\(=\+\)[^=]\+\1\s*$', 'bcW')
+  if !search('^\(=\+\).\+\1\s*$', 'bcW')
     return
   endif
 
@@ -618,7 +826,7 @@ function! vimwiki#TO_header(inner, visual) "{{{
   if a:visual && is_header_selected
     if level > 1
       let level -= 1
-      call search('^\(=\{'.level.'\}\)[^=]\+\1\s*$', 'bcW')
+      call search('^\(=\{'.level.'\}\).\+\1\s*$', 'bcW')
     else
       let advance = 1
     endif
@@ -630,7 +838,7 @@ function! vimwiki#TO_header(inner, visual) "{{{
     call cursor(sel_end + advance, 0)
   endif
 
-  if search('^\(=\{1,'.level.'}\)[^=]\+\1\s*$', 'W')
+  if search('^\(=\{1,'.level.'}\).\+\1\s*$', 'W')
     call cursor(line('.') - 1, 0)
   else
     call cursor(line('$'), 0)
@@ -642,6 +850,184 @@ function! vimwiki#TO_header(inner, visual) "{{{
   endif
 endfunction
 "}}}
+
+function! vimwiki#TO_table_cell(inner, visual) "{{{
+  if col('.') == col('$')-1
+    return
+  endif
+
+  if a:visual
+    normal! `>
+    let sel_end = getpos('.')
+    normal! `<
+    let sel_start = getpos('.')
+
+    let firsttime = sel_start == sel_end
+
+    if firsttime
+      if !search('|\|\(-+-\)', 'cb', line('.'))
+        return
+      endif
+      if getline('.')[virtcol('.')] == '+'
+        normal! l
+      endif
+      if a:inner
+        normal! 2l
+      endif
+      let sel_start = getpos('.')
+    endif
+
+    normal! `>
+    call search('|\|\(-+-\)', '', line('.'))
+    if getline('.')[virtcol('.')] == '+'
+      normal! l
+    endif
+    if a:inner
+      if firsttime || abs(sel_end[2] - getpos('.')[2]) != 2
+        normal! 2h
+      endif
+    endif
+    let sel_end = getpos('.')
+
+    call setpos('.', sel_start)
+    exe "normal! \<C-v>"
+    call setpos('.', sel_end)
+
+    " XXX: WORKAROUND.
+    " if blockwise selection is ended at | character then pressing j to extend
+    " selection furhter fails. But if we shake the cursor left and right then
+    " it works.
+    normal! hl
+  else
+    if !search('|\|\(-+-\)', 'cb', line('.'))
+      return
+    endif
+    if a:inner
+      normal! 2l
+    endif
+    normal! v
+    call search('|\|\(-+-\)', '', line('.'))
+    if !a:inner && getline('.')[virtcol('.')-1] == '|'
+      normal! h
+    elseif a:inner
+      normal! 2h
+    endif
+  endif
+endfunction "}}}
+
+function! vimwiki#TO_table_col(inner, visual) "{{{
+  let t_rows = vimwiki_tbl#get_rows(line('.'))
+  if empty(t_rows)
+    return
+  endif
+
+  " TODO: refactor it!
+  if a:visual
+    normal! `>
+    let sel_end = getpos('.')
+    normal! `<
+    let sel_start = getpos('.')
+
+    let firsttime = sel_start == sel_end
+
+    if firsttime
+      " place cursor to the top row of the table
+      call s:cursor(t_rows[0][0], virtcol('.'))
+      " do not accept the match at cursor position if cursor is next to column
+      " separator of the table separator (^ is a cursor):
+      " |-----^-+-------|
+      " | bla   | bla   |
+      " |-------+-------|
+      " or it will select wrong column.
+      if strpart(getline('.'), virtcol('.')-1) =~ '^-+'
+        let s_flag = 'b'
+      else
+        let s_flag = 'cb'
+      endif
+      " search the column separator backwards
+      if !search('|\|\(-+-\)', s_flag, line('.'))
+        return
+      endif
+      " -+- column separator is matched --> move cursor to the + sign
+      if getline('.')[virtcol('.')] == '+'
+        normal! l
+      endif
+      " inner selection --> reduce selection
+      if a:inner
+        normal! 2l
+      endif
+      let sel_start = getpos('.')
+    endif
+
+    normal! `>
+    if !firsttime && getline('.')[virtcol('.')] == '|'
+      normal! l
+    elseif a:inner && getline('.')[virtcol('.')+1] =~ '[|+]'
+      normal! 2l
+    endif
+    " search for the next column separator
+    call search('|\|\(-+-\)', '', line('.'))
+    " Outer selection selects a column without border on the right. So we move
+    " our cursor left if the previous search finds | border, not -+-.
+    if getline('.')[virtcol('.')] != '+'
+      normal! h
+    endif
+    if a:inner
+      " reduce selection a bit more if inner.
+      normal! h
+    endif
+    " expand selection to the bottom line of the table
+    call s:cursor(t_rows[-1][0], virtcol('.'))
+    let sel_end = getpos('.')
+
+    call setpos('.', sel_start)
+    exe "normal! \<C-v>"
+    call setpos('.', sel_end)
+
+  else
+    " place cursor to the top row of the table
+    call s:cursor(t_rows[0][0], virtcol('.'))
+    " do not accept the match at cursor position if cursor is next to column
+    " separator of the table separator (^ is a cursor):
+    " |-----^-+-------|
+    " | bla   | bla   |
+    " |-------+-------|
+    " or it will select wrong column.
+    if strpart(getline('.'), virtcol('.')-1) =~ '^-+'
+      let s_flag = 'b'
+    else
+      let s_flag = 'cb'
+    endif
+    " search the column separator backwards
+    if !search('|\|\(-+-\)', s_flag, line('.'))
+      return
+    endif
+    " -+- column separator is matched --> move cursor to the + sign
+    if getline('.')[virtcol('.')] == '+'
+      normal! l
+    endif
+    " inner selection --> reduce selection
+    if a:inner
+      normal! 2l
+    endif
+
+    exe "normal! \<C-V>"
+
+    " search for the next column separator
+    call search('|\|\(-+-\)', '', line('.'))
+    " Outer selection selects a column without border on the right. So we move
+    " our cursor left if the previous search finds | border, not -+-.
+    if getline('.')[virtcol('.')] != '+'
+      normal! h
+    endif
+    " reduce selection a bit more if inner.
+    if a:inner
+      normal! h
+    endif
+    " expand selection to the bottom line of the table
+    call s:cursor(t_rows[-1][0], virtcol('.'))
+  endif
+endfunction "}}}
 
 function! vimwiki#count_first_sym(line) "{{{
   let first_sym = matchstr(a:line, '\S')

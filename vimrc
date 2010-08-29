@@ -118,7 +118,7 @@ set complete=.,w,b,k,t,i
 set completeopt=longest,menu " 只在下拉菜单中显示匹配项目，并且会自动插入所有匹配项目的相同文本
 
 " 代码折叠
-set foldmethod=indent
+"set foldmethod=indent
 
 " 带有如下符号的单词不要被换行分割
 set iskeyword+=_,$,@,%,#,-
@@ -415,7 +415,7 @@ if has("autocmd")
     au BufNewFile,BufRead,BufEnter,WinEnter,FileType *.as setf actionscript
 
     " CSS3 语法支持
-    au BufRead,BufNewFile *.css set ft=css syntax=css3
+    "au BufRead,BufNewFile *.css set ft=css syntax=css3
 
     " 增加 Objective-C 语法支持
     au BufNewFile,BufRead,BufEnter,WinEnter,FileType *.m,*.h setf objc
