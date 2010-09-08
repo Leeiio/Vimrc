@@ -139,6 +139,14 @@ function! s:get_html_footer() "{{{
   if VimwikiGet('html_footer') != "" && !s:warn_html_footer
     try
       let lines = readfile(expand(VimwikiGet('html_footer')))
+
+      if exists("*strftime")
+        if !exists('g:vimwiki_timestamp_format')
+          let g:vimwiki_timestamp_format = '%Y-%m-%d %H:%M:%S'
+        endif
+        call map(lines, 'substitute(v:val, "%time_stamp%", "'. strftime(g:vimwiki_timestamp_format) .'", "g")')
+      endif
+
       return lines
     catch /E484/
       let s:warn_html_footer = 1

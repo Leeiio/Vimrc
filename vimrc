@@ -182,7 +182,7 @@ if has('syntax')
     " au BufNewFile,BufRead,BufEnter,WinEnter * colo yytextmate
 
     " 各不同类型的文件配色不同
-    au BufNewFile,BufRead,BufEnter,WinEnter *.wiki colo moria
+    "au BufNewFile,BufRead,BufEnter,WinEnter *.wiki colo moria
 
 endif
 
@@ -545,8 +545,8 @@ endif
 " VimWiki 配置
 if !exists("g:vimwiki_list")
     let g:vimwiki_list = [
-                \{"path": "~/Dropbox/VimWiki/wikiIndex", "path_html": "~/Dropbox/VimWiki/wikiHtml",
-                \   "html_footer": "~/Dropbox/VimWiki/wikiTemplate/footer.tpl", "html_header": "~/Dropbox/VimWiki/wikiTemplate/header.tpl",
+                \{"path": "~/Sites/VimWiki/wikiIndex", "path_html": "~/Sites/VimWiki/wikiHtml",
+                \   "html_footer": "~/Sites/VimWiki/wikiTemplate/footer.tpl", "html_header": "~/Sites/VimWiki/wikiTemplate/header.tpl",
                 \   "auto_export": 1}]
     let g:vimwiki_auto_checkbox = 0
     if has('win32')
