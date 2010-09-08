@@ -118,7 +118,7 @@ set complete=.,w,b,k,t,i
 set completeopt=longest,menu " 只在下拉菜单中显示匹配项目，并且会自动插入所有匹配项目的相同文本
 
 " 代码折叠
-"set foldmethod=indent
+set foldmethod=indent
 
 " 带有如下符号的单词不要被换行分割
 set iskeyword+=_,$,@,%,#,-
@@ -137,11 +137,21 @@ set wildmenu "打开 wildmenu 选项，启动具有菜单项提示的命令行�
 set matchpairs=(:),{:},[:],<:>
 set whichwrap=b,s,<,>,[,]
 
-" buffer
-set hidden
-
 "光标可以定位在没有实际字符的地方
 set ve=block
+
+" 启动后自动全屏
+set fullscreen
+
+" 搜索时无视大小写
+set ignorecase
+
+" Turn undofile on
+set undofile
+" Set undofile path
+set undodir=~/tmp/vim/undofile/
+" Set hidden to undo buffer
+set hidden
 
 " =====================
 "    默认为 UTF-8 编码
