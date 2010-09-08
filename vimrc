@@ -246,7 +246,7 @@ if has('gui_running')
             set guifont=YaHei_Consolas_Hybrid:h13
             set guifontwide=YaHei_Consolas_Hybrid:h12
 
-            set transparency=8
+            "set transparency=8
             set lines=200 columns=180
 
             " 使用 MacVim 原生的全屏幕功能
