@@ -247,7 +247,7 @@ if has('gui_running')
             set guifontwide=YaHei_Consolas_Hybrid:h12
 
             "set transparency=8
-            set lines=200 columns=180
+            set lines=222 columns=222
 
             " 使用 MacVim 原生的全屏幕功能
             let s:lines=&lines
@@ -274,64 +274,6 @@ if has('gui_running')
     endif
 endif
 
-" 更加智能的括号匹配
-inoremap ( <c-r>=OpenPair('(')<CR>
-inoremap ) <c-r>=ClosePair(')')<CR>
-inoremap { <c-r>=OpenPair('{')<CR>
-inoremap } <c-r>=ClosePair('}')<CR>
-inoremap [ <c-r>=OpenPair('[')<CR>
-inoremap ] <c-r>=ClosePair(']')<CR>
-"just for xml document, but need not for now.
-inoremap < <c-r>=OpenPair('<')<CR>
-inoremap > <c-r>=ClosePair('>')<CR>
-function! OpenPair(char)
-    let PAIRs = {
-                \ '{' : '}',
-                \ '[' : ']',
-                \ '(' : ')',
-                \ '<' : '>'
-                \}
-    let line = getline('.')
-    let oL = len(split(line, a:char, 1))-1
-    let cL = len(split(line, PAIRs[a:char], 1))-1
-
-    let txt = strpart(line, col('.')-1)
-    let ol = len(split(txt, a:char, 1))-1
-    let cl = len(split(txt, PAIRs[a:char], 1))-1
-
-    if oL>=cL || (oL<cL && ol>=cl)
-        return a:char . PAIRs[a:char] . "\<Left>"
-    else
-        return a:char
-    endif
-endfunction
-function! ClosePair(char)
-    if getline('.')[col('.')-1] == a:char
-        return "\<Right>"
-    else
-        return a:char
-    endif
-endf
-
-inoremap ' <c-r>=CompleteQuote("'")<CR>
-inoremap " <c-r>=CompleteQuote('"')<CR>
-function! CompleteQuote(quote)
-    let ql = len(split(getline('.'), a:quote, 1))-1
-    " a:quote length is odd.
-    if (ql%2)==1
-        return a:quote
-    elseif getline('.')[col('.') - 1] == a:quote
-        return "\<Right>"
-    elseif '"'==a:quote && "vim"==&ft && 0==match(strpart(getline('.'), 0, col('.')-1), "^[\t ]*$")
-        " for vim comment.
-        return a:quote
-    elseif "'"==a:quote && 0==match(getline('.')[col('.')-2], "[a-zA-Z0-9]")
-        " for Name's Blog.
-        return a:quote
-    else
-        return a:quote . a:quote . "\<Left>"
-    endif
-endfunction
 
 
 "去除当前所编辑文件的路径信息，只保留文件名
@@ -365,29 +307,6 @@ if has("autocmd")
                     \   exe "normal g`\"" |
                     \ endif
     augroup END
-
-    " 括号自动补全
-    function! AutoClose()
-        :inoremap ( ()<ESC>i
-        :inoremap " ""<ESC>i
-        :inoremap ' ''<ESC>i
-        :inoremap { {}<ESC>i
-        :inoremap [ []<ESC>i
-        :inoremap ) <c-r>=ClosePair(')')<CR>
-        :inoremap } <c-r>=ClosePair('}')<CR>
-        :inoremap ] <c-r>=ClosePair(']')<CR>
-    endf
-
-    function! ClosePair(char)
-        if getline('.')[col('.') - 1] == a:char
-            return "\<Right>"
-        else
-            return a:char
-        endif
-    endf
-
-    "auto close for PHP and Javascript script
-    au FileType css,html,php,c,python,javascript exe AutoClose()
 
     " Auto Check Syntax
     au BufWritePost,FileWritePost *.js,*.php call CheckSyntax(1)
@@ -504,6 +423,8 @@ endif
 " 选中一段文字并全文搜索这段文字
 vnoremap  *  y/<C-R>=escape(@", '\\/.*$^~[]')<CR><CR>
 vnoremap  #  y?<C-R>=escape(@", '\\/.*$^~[]')<CR><CR>
+
+map <leader>jt  <Esc>:%!json_xs -f json -t json-pretty<CR>
 
 " =====================
 " 插件配置
