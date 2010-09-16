@@ -56,7 +56,7 @@ set history=500
 " 行控制
 set linebreak " 英文单词在换行时不被截断
 set nocompatible " 设置不兼容VI
-set textwidth=80 " 设置每行80个字符自动换行，加上换行符
+"set textwidth=80 " 设置每行80个字符自动换行，加上换行符
 set wrap " 设置自动折行
 
 " 标签页
