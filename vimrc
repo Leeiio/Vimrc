@@ -429,7 +429,13 @@ map <leader>jt  <Esc>:%!json_xs -f json -t json-pretty<CR>
 " =====================
 " 插件配置
 " =====================
+"对NERD_commenter的设置
+let NERDShutUp=1
+"支持单行和多行的选择，//格式
+map <c-h> ,c<space>
+
 let g:neocomplcache_enable_at_startup = 1
+let g:neocomplcache_min_syntax_length = 3
 
 " Tag list (ctags)
 let Tlist_Show_One_File = 1            "不同时显示多个文件的tag，只显示当前文件的
