@@ -429,12 +429,25 @@ map <leader>jt  <Esc>:%!json_xs -f json -t json-pretty<CR>
 " =====================
 " 插件配置
 " =====================
+" showmarks setting
+" Enable ShowMarks
+let showmarks_enable = 1
+" Show which marks
+let showmarks_include = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890"
+" Ignore help, quickfix, non-modifiable buffers
+let showmarks_ignore_type = "hqm"
+" Hilight lower & upper marks
+let showmarks_hlline_lower = 1
+let showmarks_hlline_upper = 1
+
+" markbrowser setting
+nmap <silent> <leader>bm :MarksBrowser<cr> 
+
 "对NERD_commenter的设置
 let NERDShutUp=1
 "支持单行和多行的选择，//格式
 map <c-h> ,c<space>
 
-let g:neocomplcache_enable_at_startup = 1
 let g:neocomplcache_min_syntax_length = 3
 
 " Tag list (ctags)
