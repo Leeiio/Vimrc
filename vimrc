@@ -156,6 +156,9 @@ endif
 " Set hidden to undo buffer
 set hidden
 
+"cliboard seting
+set clipboard+=unnamed " set clipboard
+
 " =====================
 "    默认为 UTF-8 编码
 " =====================
