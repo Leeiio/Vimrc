@@ -1,0 +1,58 @@
+*totd.txt*	Display a vim tip when starting vim.
+
+Purpose:
+=======
+
+     You can download a file of tips on using vim.  The totd.vim plugin
+will give you a "Tip of the Day" by opening this file in a help window, once a
+day, when you start vim.  The plugin keeps track of the tips it has displayed,
+and runs through them in order.  You can also get a tip whenever you want one
+with the command						*:TipOfTheDay*
+>
+	:TipOfTheDay
+
+The usual abbreviation rules apply, so :Tip will probably work just as well.
+
+Author:
+======
+
+Benji Fisher <benji@member.AMS.org>
+
+     You can contact me if you want to request a feature (random choice of
+tip, configure how often to show tips, ...) or suggest an improvement to the
+script.  If you want more choices in downloading tips, see the contact
+information at >
+	http://www.vim.org/
+
+Installation:						*totd-installation*
+============
+
+1. Unpack totd.zip into a directory in your |runtimepath|.  For most users,
+this typically means ~/.vim or $HOME/vimfiles or $VIM/vimfiles .  This will
+create files
+	plugin/totd.vim	(the plugin)
+	doc/totd.txt	(this file)
+	plugin/vimtips/vimtips.txt	(skeleton tips file)
+
+2a. The easiest thing may be to restart vim, either right now or whenever you
+get around to it.  Then totd.vim will automatically run |:helptags|, edit the
+tags file, and open the skeleton vimtips file.
+
+2b. If you want to finish the installation right now, without restarting vim,
+simply source the totd.vim file and get a tip:
+>
+	:source path/to/totd.vim
+	:TipOfTheDay
+
+3. The totd.vim plugin will open the skeleton vimtips file in a help window.
+Follow the URL there to download a real vimtips file.
+
+What not to do:
+==============
+
+     Since vimtips.txt is not formatted as a vim help file, you do not want to
+run |:helptags| on any directory containing it.  This is why it is put in its
+own directory, plugin/vimtips/ .  If you have already done this, simply move
+vimtips.txt out of the doc/ directory and run |:helptags| again.
+
+ vim:tw=78:fo=tcq2:isk=!-~,^*,^\|,^\":ts=8:ft=help:norl:

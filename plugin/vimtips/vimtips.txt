@@ -1,0 +1,25 @@
+*vimtips.txt*
+
+VimTip 0: downloading Vim tips
+
+     If you are reading this in a help window, then you have probably already
+installed the "Tip of the Day" script, totd.vim .  Congratulations!  You can
+now replace this skeleton file with a real vimtips.txt file downloaded from
+>
+	http://www.vim.org/tips/tip_download.php
+<
+     If you have not yet installed the totd.vim plugin, check that it is in
+the plugin/ directory.  (This file should be in plugin/vimtips/ .)  Then
+either wait until the next time you start up vim, or source the plugin and get
+a tip:
+>
+	:runtime plugin/totd.vim
+	:TipOfTheDay
+
+(The usual abbreviation rules apply:  you can probably just use :Tip .)  This
+file should then show up in a help window.
+
+VimTip 1: test
+
+test!
+
