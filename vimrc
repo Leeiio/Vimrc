@@ -141,15 +141,18 @@ set whichwrap=b,s,<,>,[,]
 set ve=block
 
 " 启动后自动全屏
-set fullscreen
+"set fullscreen
 
 " 搜索时无视大小写
 set ignorecase
 
-" Turn undofile on
-set undofile
-" Set undofile path
-set undodir=~/tmp/vim/undofile/
+if has("gui_running")
+    " Turn undofile on
+    set undofile
+    " Set undofile path
+    set undodir=~/tmp/vim/undofile/
+endif
+
 " Set hidden to undo buffer
 set hidden
 
@@ -185,8 +188,10 @@ if has('syntax')
     " 保证语法高亮
     syntax on
 
-    colorscheme yytextmate
-    let g:colors_name="yytextmate"
+    if has('gui_running')
+        colorscheme yytextmate
+        let g:colors_name="yytextmate"
+    endif
 
     " 默认编辑器配色
     " au BufNewFile,BufRead,BufEnter,WinEnter * colo yytextmate
@@ -429,6 +434,9 @@ map <leader>jt  <Esc>:%!json_xs -f json -t json-pretty<CR>
 " =====================
 " 插件配置
 " =====================
+let tlist_html_settings = 'html;h:Headers;o:Objects(ID);c:Classes'
+let tlist_xhtml_settings = 'html;h:Headers;o:Objects(ID);c:Classes'
+
 " showmarks setting
 " Enable ShowMarks
 let showmarks_enable = 1
