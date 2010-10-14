@@ -5,7 +5,7 @@
 "         Author: Leeiio<guaniu@gmail.com>
 "        Website: http://leeiio.me/
 "          Since: 2010-02-22
-"  Last Modified: 2010-02-22 14:36:01 leeiio
+"  Last Modified: 2010-10-14 14:28:01 leeiio
 "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "source $VIMRUNTIME/vimrc_example.vim
@@ -185,26 +185,6 @@ endif
 
 
 " =====================
-" 主题配色
-" =====================
-if has('syntax')
-    " 保证语法高亮
-    syntax on
-
-    if has('gui_running')
-        colorscheme yytextmate
-        let g:colors_name="yytextmate"
-    endif
-
-    " 默认编辑器配色
-    " au BufNewFile,BufRead,BufEnter,WinEnter * colo yytextmate
-
-    " 各不同类型的文件配色不同
-    "au BufNewFile,BufRead,BufEnter,WinEnter *.wiki colo moria
-
-endif
-
-" =====================
 " 图形界面
 " =====================
 if has('gui_running')
@@ -241,7 +221,7 @@ if has('gui_running')
     endif
 
     if has("unix") && !has('gui_macvim')
-        set guifont=Courier\ 10\ Pitch\ 11
+        set guifont=Courier\ 11\ Pitch\ 12
     endif
 
     if has("mac") || has("gui_macvim")
@@ -283,7 +263,6 @@ if has('gui_running')
 endif
 
 
-
 "去除当前所编辑文件的路径信息，只保留文件名
 set guitablabel=%{ShortTabLabel()}
 function ShortTabLabel()
@@ -293,6 +272,27 @@ function ShortTabLabel()
     return filename
 endfunction
 
+
+" =====================
+" 主题配色
+" =====================
+if has('syntax')
+    " 保证语法高亮
+    syntax on
+
+    if has('gui_running')
+        colorscheme yytextmate
+        let g:colors_name="yytextmate"
+    endif
+
+    " 默认编辑器配色
+    " au BufNewFile,BufRead,BufEnter,WinEnter * colo yytextmate
+
+    " 各不同类型的文件配色不同
+    "au BufNewFile,BufRead,BufEnter,WinEnter *.wiki colo moria
+
+endif
+
 "Highlight current
 if has("gui_running")
     set cursorline
@@ -300,6 +300,7 @@ if has("gui_running")
     hi cursorline guibg=#0D142C
     hi CursorColumn guibg=#0D142C
 endif
+
 
 " =====================
 " AutoCmd 自动运行
@@ -332,16 +333,6 @@ if has("autocmd")
         au FileType php setlocal dict+=~/.vim/dict/php_funclist.dict
         au FileType css setlocal dict+=~/.vim/dict/css.dict
         au FileType javascript setlocal dict+=~/.vim/dict/javascript.dict
-    endif
-
-    " 自动最大化窗口
-    if has('gui_running')
-        if has("win32")
-            au GUIEnter * simalt ~x
-            "elseif has("unix")
-            "au GUIEnter * winpos 0 0
-            "set lines=999 columns=999
-        endif
     endif
 
     " 格式化 JavaScript 文件
