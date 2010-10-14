@@ -495,16 +495,6 @@ if has("gui_macvim")
     "lcd ~/Desktop/
 endif
 
-" 日历插件
-if has("win32")
-let calendar_diary = "D:\\Program Files\\Vim\\vimfiles\\calendar"
-autocmd BufNewFile *.cal read $VIM\vimfiles\template\calendar_morning_diary.tpl | normal ggdd "日历套用模版
-endif
-if has("gui_macvim")
-let calendar_diary = $HOME."/.vim/calendar"
-autocmd BufNewFile *.cal read $HOME/.vim/templates/calendar_morning_diary.tpl | normal ggdd "日历套用模版
-endif
-
 " VimWiki 配置
 if !exists("g:vimwiki_list")
     let g:vimwiki_list = [
@@ -512,6 +502,7 @@ if !exists("g:vimwiki_list")
                 \   "html_footer": "~/Sites/VimWiki/wikiTemplate/footer.tpl", "html_header": "~/Sites/VimWiki/wikiTemplate/header.tpl",
                 \   "auto_export": 1}]
     let g:vimwiki_auto_checkbox = 0
+    let g:vimwiki_use_calendar = 0  "禁用calendar
     if has('win32')
         " 注意！
         " 1、如果在 Windows 下，盘符必须大写
@@ -529,6 +520,27 @@ if !exists("g:vimwiki_list")
     "au FileType vimwiki imap <C-t> <c-r>=TriggerSnippet()<cr>
 
     nmap <C-i><C-i> :VimwikiTabGoHome<cr>
+endif
+
+" 日历插件
+if has("win32")
+    let g:calendar_diary = "D:\\Program Files\\Vim\\vimfiles\\calendar"
+    autocmd BufNewFile *.cal read $VIM\vimfiles\template\calendar_morning_diary.tpl | normal ggdd "日历套用模版
+endif
+if has("gui_macvim")
+    let g:calendar_smnd = 1
+    let g:calendar_monday = 1 " week start with monday.
+    let g:calendar_weeknm = 1 " don't work with g:calendar_diary
+    let g:calendar_mark = 'left-fit' " let plus(+) near the date, like +8.
+    let g:calendar_mruler = '一月,二月,三月,四月,五月,六月,七月,八月,九月,十月,十一月,十二月'
+    let g:calendar_wruler = '日 一 二 三 四 五 六'
+    let g:calendar_navi_label = '上月,本月,下月'
+    let g:calendar_list = [
+        \ {'name': 'Works', 'path': '~/diary/works', 'ext': 'task'},
+        \ {'name': 'Tasks', 'path': '~/diary/tasks', 'ext': 'task'},
+        \ {'name': 'Diary', 'path': '~/diary/diary', 'ext': 'diary'},
+        \ ]
+    autocmd BufNewFile *.cal read $HOME/.vim/templates/calendar_morning_diary.tpl | normal ggdd "日历套用模版
 endif
 
 " on Windows, default charset is gbk

@@ -1,6 +1,6 @@
 " Vim color file
 " Maintainer:   Jani Nurminen <slinky@iki.fi>
-" Last Change:  $Id: zenburn.vim,v 2.13 2009/10/24 10:16:01 slinky Exp $
+" Last Change:  $Id: zenburn.vim,v 2.14 2010/10/13 20:13:27 slinky Exp $
 " URL:      	http://slinky.imukuppi.org/zenburnpage/
 " License:      GPL
 "
@@ -35,6 +35,7 @@
 "  - John Gabriele - spotted bad Ignore-group handling
 "  - Zac Thompson - spotted invisible NonText in low contrast mode
 "  - Christophe-Marie Duquesne - suggested making a Vimball
+"  - Drew - noted the CursorColumn bug (guifg was unintentionally set)
 "
 " CONFIGURABLE PARAMETERS:
 "
@@ -295,7 +296,7 @@ if exists("g:zenburn_high_Contrast")
     hi TabLineFill     guifg=#cfcfaf guibg=#181818 gui=bold
     hi TabLineSel      guifg=#efefef guibg=#1c1c1b gui=bold
     hi TabLine         guifg=#b6bf98 guibg=#181818 gui=bold
-    hi CursorColumn    guifg=#dcdccc guibg=#2b2b2b
+    hi CursorColumn    guibg=#2b2b2b
     hi NonText         guifg=#404040 gui=bold
 else
     " Original, lighter background
@@ -310,7 +311,7 @@ else
     hi TabLineFill     guifg=#cfcfaf guibg=#353535 gui=bold
     hi TabLineSel      guifg=#efefef guibg=#3a3a39 gui=bold
     hi TabLine         guifg=#b6bf98 guibg=#353535 gui=bold
-    hi CursorColumn    guifg=#dcdccc guibg=#4f4f4f
+    hi CursorColumn    guibg=#4f4f4f
     hi NonText         guifg=#5b605e gui=bold
 endif
 

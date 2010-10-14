@@ -2,322 +2,10 @@
 " What Is This: Calendar
 " File: calendar.vim
 " Author: Yasuhiro Matsumoto <mattn.jp@gmail.com>
-" Last Change: 25-Mar-2010.
-" Version: 2.1
-" Thanks:
-"     thinca                        : bug fix
-"     Ingo Karkat                   : bug fix
-"     Thinca                        : bug report
-"     Yu Pei                        : bug report
-"     Per Winkvist                  : bug fix
-"     Serge (gentoosiast) Koksharov : bug fix
-"     Vitor Antunes                 : bug fix
-"     Olivier Mengue                : bug fix
-"     Noel Henson                   : today action
-"     Per Winkvist                  : bug report
-"     Peter Findeisen               : bug fix
-"     Chip Campbell                 : gave a hint for 1.3z
-"     PAN Shizhu                    : gave a hint for 1.3y
-"     Eric Wald                     : bug fix
-"     Sascha Wuestemann             : advise
-"     Linas Vasiliauskas            : bug report
-"     Per Winkvist                  : bug report
-"     Ronald Hoelwarth              : gave a hint for 1.3s
-"     Vikas Agnihotri               : bug report
-"     Steve Hall                    : gave a hint for 1.3q
-"     James Devenish                : bug fix
-"     Carl Mueller                  : gave a hint for 1.3o
-"     Klaus Fabritius               : bug fix
-"     Stucki                        : gave a hint for 1.3m
-"     Rosta                         : bug report
-"     Richard Bair                  : bug report
-"     Yin Hao Liew                  : bug report
-"     Bill McCarthy                 : bug fix and gave a hint
-"     Srinath Avadhanula            : bug fix
-"     Ronald Hoellwarth             : few advices
-"     Juan Orlandini                : added higlighting of days with data
-"     Ray                           : bug fix
-"     Ralf.Schandl                  : gave a hint for 1.3
-"     Bhaskar Karambelkar           : bug fix
-"     Suresh Govindachar            : gave a hint for 1.2, bug fix
-"     Michael Geddes                : bug fix
-"     Leif Wickland                 : bug fix
-" Usage:
-"     :Calendar
-"       show calendar at this year and this month
-"     :Calendar 8
-"       show calendar at this year and given month
-"     :Calendar 2001 8
-"       show calendar at given year and given month
-"     :CalendarH ...
-"       show horizontal calendar ...
-"
-"     <Leader>ca
-"       show calendar in normal mode
-"     <Leader>ch
-"       show horizontal calendar ...
-" ChangeLog:
-"     2.1  : bug fix, set filetype 'calendar'.
-"     2.0  : bug fix, many bug fix and enhancements.
-"     1.9  : bug fix, use nnoremap.
-"     1.8  : bug fix, E382 when close diary.
-"     1.7  : bug fix, week number was broken on 2008.
-"     1.6  : added calendar_begin action.
-"            added calendar_end action.
-"     1.5  : bug fix, fixed ruler formating with strpart.
-"            bug fix, using winfixheight.
-"     1.4a : bug fix, week number was broken on 2005.
-"            added calendar_today action.
-"            bug fix, about wrapscan.
-"            bug fix, about today mark.
-"            bug fix, about today navigation.
-"     1.4  : bug fix, and one improvement.
-"            bug 1:
-"              when marking the current date, there is not distinguished e.g. between
-"              20041103 and 20040113, both dates are marked as today
-"            bug 2:
-"              the navigation mark "today" doesn't work
-"            improvement:
-"              the mapping t worked only when today was displayed, now it works always
-"              and redisplays the cuurent month and today
-"     1.3z : few changes
-"            asign <Left>, <Right> for navigation.
-"            set ws for search navigation.
-"            add tag for GetLatestVimScripts(AutoInstall)
-"     1.3y : bug fix, few changes
-"            changed color syntax name. (ex. CalNavi, see bottom of this)
-"            changed a map CalendarV for <Leader>cal
-"            changed a map CalendarH for <Leader>caL
-"            (competitive map for cvscommand.vim)
-"            the date on the right-hand side didn't work correctoly.
-"            make a map to rebuild Calendar window(r).
-"     1.3x : bug fix
-"            viweek can't refer when not set calendar_weeknm.
-"     1.3w : bug fix
-"            on leap year, week number decreases.
-"     1.3v : bug fix
-"            add nowrapscan 
-"            use s:bufautocommandsset for making title
-"            don't focus to navi when doubleclick bottom next>.
-"     1.3u : bug fix
-"             when enter diary first time,
-"              it don't warn that you don't have diary directory.
-"     1.3t : bug fix
-"             make sure the variables for help
-"     1.3s : bug fix
-"             make a map CalendarV for <Leader>ca
-"            add option calendar_navi_label
-"             see Additional:
-"            add option calendar_focus_today
-"             see Additional:
-"            add map ? for help
-"     1.3r : bug fix
-"             if clicked navigator, cursor go to strange position.
-"     1.3q : bug fix
-"             coundn't set calendar_navi
-"              in its horizontal direction
-"     1.3p : bug fix
-"             coundn't edit diary when the calendar is
-"              in its horizontal direction
-"     1.3o : add option calendar_mark, and delete calendar_rmark
-"             see Additional:
-"            add option calendar_navi
-"             see Additional:
-"     1.3n : bug fix
-"             s:CalendarSign() should use filereadable(expand(sfile)).
-"     1.3m : tuning
-"             using topleft or botright for opening Calendar.
-"            use filereadable for s:CalendarSign().
-"     1.3l : bug fix
-"             if set calendar_monday, it can see that Sep 1st is Sat
-"               as well as Aug 31st.
-"     1.3k : bug fix
-"             it didn't escape the file name on calendar.
-"     1.3j : support for fixed Gregorian
-"             added the part of Sep 1752.
-"     1.3i : bug fix
-"             Calculation mistake for week number.
-"     1.3h : add option for position of displaying '*' or '+'.
-"             see Additional:
-"     1.3g : centering header
-"            add option for show name of era.
-"             see Additional:
-"            bug fix
-"             <Leader>ca didn't show current month.
-"     1.3f : bug fix
-"            there was yet another bug of today's sign.
-"     1.3e : added usage for <Leader>
-"            support handler for sign.
-"            see Additional:
-"     1.3d : added higlighting of days that have calendar data associated
-"             with it.
-"            bug fix for calculates date.
-"     1.3c : bug fix for MakeDir()
-"            if CalendarMakeDir(sfile) != 0
-"               v 
-"            if s:CalendarMakeDir(sfile) != 0
-"     1.3b : bug fix for calendar_monday.
-"            it didn't work g:calendar_monday correctly.
-"            add g:calendar_version.
-"            add argument on action handler.
-"            see Additional:
-"     1.3a : bug fix for MakeDir().
-"            it was not able to make directory.
-"     1.3  : support handler for action.
-"            see Additional:
-"     1.2g : bug fix for today's sign.
-"            it could not display today's sign correctly.
-"     1.2f : bug fix for current Date.
-"            vtoday variable calculates date as 'YYYYMMDD'
-"            while the loop calculates date as 'YYYYMMD' i.e just 1 digit
-"            for date if < 10 so if current date is < 10 , the if condiction
-"            to check for current date fails and current date is not
-"            highlighted.
-"            simple solution changed vtoday calculation line divide the
-"            current-date by 1 so as to get 1 digit date.
-"     1.2e : change the way for setting title.
-"            auto configuration for g:calendar_wruler with g:calendar_monday
-"     1.2d : add option for show week number.
-"              let g:calendar_weeknm = 1
-"            add separator if horizontal.
-"            change all option's name
-"              g:calendar_mnth -> g:calendar_mruler
-"              g:calendar_week -> g:calendar_wruler
-"              g:calendar_smnd -> g:calendar_monday
-"     1.2c : add option for that the week starts with monday.
-"              let g:calendar_smnd = 1
-"     1.2b : bug fix for modifiable.
-"            setlocal nomodifiable (was set)
-"     1.2a : add default options.
-"            nonumber,foldcolumn=0,nowrap... as making gap
-"     1.2  : support wide display.
-"            add a command CalendarH
-"            add map <s-left> <s-right>
-"     1.1c : extra.
-"            add a titlestring for today.
-"     1.1b : bug fix by Michael Geddes.
-"            it happend when do ':Calender' twice
-"     1.1a : fix misspell.
-"            Calender -> Calendar
-"     1.1  : bug fix.
-"            it"s about strftime("%m")
-"     1.0a : bug fix by Leif Wickland.
-"            it"s about strftime("%w")
-"     1.0  : first release.
-" TODO:
-"     add the option for diary which is separate or single file.
-" Additional:
-"     *if you want to keep focus when goto next or prev calendar,
-"       add the following to your .vimrc:
-"
-"       let g:calendar_focus_today = 1
-"
-"     *if you want to place the mark('*' or '+') after the day,
-"       add the following to your .vimrc:
-"
-"       let g:calendar_mark = 'right'
-"
-"       NOTE:you can set 'left', 'left-fit', 'right' for this option.
-"
-"     *if you want to use navigator,
-"       add the following to your .vimrc:
-"
-"       let g:calendar_navi = ''
-"
-"       NOTE:you can set 'top', 'bottom', 'both' for this option.
-"
-"     *if you want to replace navigator in your language,
-"       add the following to your .vimrc:
-"
-"       let g:calendar_navi_label = 'Prev,Today,Next'
-"
-"       NOTE:it must be separated with ','.
-"
-"     *if you want to replace calendar header,
-"       add the following in your favorite language to your .vimrc:
-"
-"       let g:calendar_erafmt = 'Heisei,-1988'   " for Japanese
-"       (name of era and diff with A.D.)
-"
-"     *if you want to replace calendar ruler,
-"       add the following in your favorite language to your .vimrc:
-"
-"       let g:calendar_mruler = 'Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec'
-"       let g:calendar_wruler = 'Su Mo Tu We Th Fr Sa'
-"
-"     *if you want the week to start with monday, add below to your .vimrc:
-"
-"       let g:calendar_monday = 1
-"       (You don't have to to change g:calendar_wruler!)
-"
-"     *if you want to show week number, add this to your .vimrc:
-"
-"       set g:calendar_weeknm as below
-"       (Can't be used together with g:calendar_monday.)
-"
-"       let g:calendar_weeknm = 1 " WK01
-"       let g:calendar_weeknm = 2 " WK 1
-"       let g:calendar_weeknm = 3 " KW01
-"       let g:calendar_weeknm = 4 " KW 1
-"
-"     *if you want to show the current date and time, add below to your .vimrc:
-"
-"       let g:calendar_datetime = 'title'
-"
-"       NOTE:you can set 'title', 'statusline', '' for this option.
-"
-"     *if you want to hook calender when pressing enter,
-"       add this to your .vimrc:
-"
-"       function MyCalAction(day,month,year,week,dir)
-"         " day   : day you actioned
-"         " month : month you actioned
-"         " year  : year you actioned
-"         " week  : day of week (Mo=1 ... Su=7)
-"         " dir   : direction of calendar
-"       endfunction
-"       let calendar_action = 'MyCalAction'
-"
-"       also, Calendar call following actions when begin or end of display.
-"       them actions are called at one each time when it show 3 months display.
-"
-"       function MyCalActionBegin()
-"       endfunction
-"       let calendar_begin = 'MyCalActionBegin'
-"
-"       function MyCalActionEnd()
-"       endfunction
-"       let calendar_end = 'MyCalActionEnd'
-"
-"     *if you want to show sign in calender,
-"       add this to your .vimrc:
-"
-"       function MyCalSign(day,month,year)
-"         " day   : day you actioned
-"         " month : month you actioned
-"         " year  : year you actioned
-"         if a:day == 1 && a:month == 1
-"           return 1 " happy new year
-"         else
-"           return 0 " or not
-"         endif
-"       endfunction
-"       let calendar_sign = 'MyCalSign'
-"
-"     *if you want to hook calender when pressing 'today',
-"       add this to your .vimrc:
-"
-"       function MyCalToday()
-"       endfunction
-"       let calendar_today = 'MyCalToday'
-"
-"     *if you want to get the version of this.
-"       type below.
-"
-"       :echo calendar_version
-" GetLatestVimScripts: 52 1 :AutoInstall: calendar.vim
+" Last Change: 06-May-2010.
+" Version: 2.2
 
-let g:calendar_version = "2.1"
+let g:calendar_version = "2.2"
 if &compatible
   finish
 endif
@@ -344,9 +32,6 @@ endif
 if !exists("g:calendar_navi_label")
   let g:calendar_navi_label = "Prev,Today,Next"
 endif
-if !exists("g:calendar_diary")
-  let g:calendar_diary = "~/diary"
-endif
 if !exists("g:calendar_focus_today")
   let g:calendar_focus_today = 0
 endif
@@ -357,11 +42,226 @@ if !exists("g:calendar_datetime")
   let g:calendar_datetime = 'title'
 endif
 
+if !exists("g:calendar_current_idx")
+    let g:calendar_current_idx = 0
+endif
+if !exists("g:calendar_list") && !exists("g:calendar_diary")
+    let g:calendar_diary = '~/diary'
+    let g:calendar_list = [{'name': 'Diary', 'path': g:calendar_diary, 'ext': 'cal'}]
+elseif !exists("g:calendar_diary")
+    let g:calendar_diary = g:calendar_list[g:calendar_current_idx].path
+elseif !exists("g:calendar_list")
+    let g:calendar_list = [{'name': 'Diary', 'path': g:calendar_diary, 'ext': 'cal'}]
+endif
+
 "*****************************************************************
 "* Calendar commands
 "*****************************************************************
 command! -nargs=* Calendar  call Calendar(0,<f-args>)
 command! -nargs=* CalendarH call Calendar(1,<f-args>)
+command! -nargs=0 Cal Calendar
+exe "command! -nargs=0 CalendarDiarys NERDTree " . g:calendar_diary
+exe "command! -nargs=* CalendarSearch vimgrep /<args>/".escape(g:calendar_diary," ")."**/*.".g:calendar_list[g:calendar_current_idx]["ext"]."|syntax on|cw"
+"command! -nargs=* CalendarSearch call CalendarSearch(<f-args>)
+"function! CalendarSearch(...)
+    "exe "vimgrep /" . a:1 . "/" . escape(g:calendar_diary, " ") . "**/*.".g:calendar_list[g:calendar_current_idx]["ext"]
+    "syntax off
+"endfunction
+autocmd filetype calendar nmap <buffer> <C-j> :call CalendarDiaryGoto("next")<cr>
+autocmd filetype calendar nmap <buffer> <C-k> :call CalendarDiaryGoto("prev")<cr>
+
+function! s:CalendarDiaryGetDateByFileName()
+    let filepath = expand("%")
+    let matches = split(filepath, "[/\]")
+    let year = str2nr(matches[len(matches)-3])
+    let month = str2nr(matches[len(matches)-2])
+    let day = matches[len(matches)-1]
+    let day = str2nr(strpart(day, 0, strlen(day)-4))
+    return [year, month, day]
+endfunction
+function! s:CalendarIsLeap(year)
+	return !empty(a:year) && (a:year%400==0 ||(a:year%4==0&&a:year%100!=0))
+endfunction
+
+" FIXME: this function just fix one next-day/prev-day.
+function! s:CalendarFixDate(year, month, day)
+    let year = a:year
+    let month = a:month
+    let day = a:day
+    let DAYS = [0,31,28,31,30,31,30,31,31,30,31,30,31]
+    if s:CalendarIsLeap(year)
+        let DAYS[2] = 29
+    endif
+    if day<1
+        let month = month - 1
+        let day = DAYS[month]
+    elseif day>DAYS[month]
+        let month = month+1
+        let day = 1
+    endif
+    if month<1
+        let year = year-1
+        let month = 12
+    elseif month>12
+        let year = year+1
+        let month = 1
+    endif
+    return [year, month, day]
+endfunction
+function! CalendarDiaryGoto(...)
+    let diary_path = finddir(g:calendar_diary)
+    if exists('+shellslash') && &shellslash
+        let diary_path = substitute(diary_path, "\\", "/", "g")
+    endif
+
+    if a:1=="next"
+        if stridx(expand("%"), diary_path)!=0
+            echo ""
+            return
+        endif
+        let date = s:CalendarDiaryGetDateByFileName()
+        let date = s:CalendarFixDate(date[0], date[1], date[2]+1)
+        let year = date[0]
+        let month = date[1]
+        let day = date[2]
+    elseif a:1=="prev"
+        if stridx(expand("%"), diary_path)!=0
+            echo ""
+            return
+        endif
+        let date = s:CalendarDiaryGetDateByFileName()
+        let date = s:CalendarFixDate(date[0], date[1], date[2]-1)
+        let year = date[0]
+        let month = date[1]
+        let day = date[2]
+    else
+        let year = a:1
+        let month = a:2
+        let day = a:3
+    endif
+    exe "edit ".g:calendar_diary."/".year."/".month."/".day.".".g:calendar_list[g:calendar_current_idx]["ext"]
+endfunction
+
+function! NumberOfWeek(year,month,day)
+    " lets calc weeknumber the cruel and hard way :D
+    " Find JulianDay
+
+    let a = float2nr(floor((14-(a:month))/12))
+    let y = a:year+4800-a
+    let m = a:month+(12*a)-3
+
+    " (gregorian calendar)
+    let jd = a:day + float2nr(floor(((153*m)+2)/5)) + (365*y) + float2nr(floor(y/4)) -
+        \ float2nr(floor(y/100)) + float2nr(floor(y/400)) - 32045
+
+    " (julian calendar)
+    " var jd = (a:day+1)+round(((153*m)+2)/5)+(365+y) + round(y/4)-32083;
+
+    " now calc weeknumber according to JD
+    let d4 = (jd+31741-(jd%7))%146097%36524%1461
+    let L = float2nr(floor(d4/1460))
+    let d1 = ((d4-L)%365)+L
+    return float2nr(floor(d1/7)) + 1
+endfunction
+
+function! NumberOfDay(year,month,day)
+    let MONTH_DAYS=[0,31,28,31,30,31,30,31,31,30,31,30,31]
+    if IsLeap(a:year)
+        let MONTH_DAYS[2] = 29
+    endif
+
+    let nr=0
+    let idx = 1
+    while idx<a:month
+        let nr = nr + MONTH_DAYS[idx]
+        let idx = idx+1
+    endw
+    return nr+a:day
+endfunction
+
+function! DayOfWeek(year,month,day)
+    let a = float2nr(floor((14 - a:month)/12))
+    let y = a:year - a
+    let m = a:month + 12*a - 2
+    let d = (a:day + y + float2nr(floor(y/4)) - float2nr(floor(y/100)) + float2nr(floor(y/400)) + float2nr(floor((31*m)/12))) % 7
+    return d
+endfunction
+
+function! IsLeap(year)
+	return a:year%400==0 || (a:year%4==0 && a:year%100!=0)
+endfunction
+
+function! DaysOfMonth(year,month)
+    let MONTH_DAYS=[0,31,28,31,30,31,30,31,31,30,31,30,31]
+    return (a:month==2 && IsLeap(a:year))?29:MONTH_DAYS[a:month]
+endfunction
+
+function! MakeMonthlyCalendar(year,month)
+    let weeks = [
+        \ ['   ', '   ', '   ', '   ', '   ', '   ', '   '],
+        \ ['   ', '   ', '   ', '   ', '   ', '   ', '   '],
+        \ ['   ', '   ', '   ', '   ', '   ', '   ', '   '],
+        \ ['   ', '   ', '   ', '   ', '   ', '   ', '   ']
+    \ ]
+    let days = DaysOfMonth(a:year,a:month)
+    let jan1weekday = DayOfWeek(a:year, a:month, 1)
+    let day = 1
+    let weekidx = 0
+    while day<=days
+        let weekday = DayOfWeek(a:year, a:month, day)
+        let weekday = weekday==0 ? 7 : weekday
+
+        if exists("g:calendar_sign") && g:calendar_sign != ""
+            exe "let vsign = " . g:calendar_sign . "(day, a:month, a:year)"
+            if vsign != ""
+                let vsign = vsign[0]
+                if vsign !~ "[+!#$%&@?]"
+                    let vsign = "+"
+                endif
+            endif
+        else
+            let vsign = ''
+        endif
+
+        if vsign == ''
+            let weeks[weekidx][weekday-1] = day<10 ? '  '.day : ' '.day
+        else
+            let weeks[weekidx][weekday-1] = day<10 ? ' '.vsign.day : vsign.day
+        endif
+        if weekday>=7
+            let weekidx += 1
+
+            if weekidx>=4
+                call add(weeks, ['   ', '   ', '   ', '   ', '   ', '   ', '   '])
+            endif
+        endif
+        let day += 1
+    endwhile
+    return weeks
+endfunction
+
+function! DisplayMonthlyCalendar(year,month)
+    let weeks = MakeMonthlyCalendar(a:year, a:month)
+    let cal=[]
+    let leng = len(weeks)
+    let idx = 0
+    while idx<leng
+        call add(cal, join(weeks[idx], '')." ")
+        let idx += 1
+    endwhile
+    return join(cal, "\n")
+endfunction
+
+function! calendar#select(index)
+  if a:index < 1 || a:index > len(g:calendar_list)
+    return
+  endif
+  if &ft == 'calendar'
+    let b:calendar_idx = g:calendar_current_idx
+  endif
+  let g:calendar_current_idx = a:index
+endfunction
+
 
 if !hasmapto("<Plug>CalendarV")
   nmap <unique> <Leader>cal <Plug>CalendarV
@@ -374,6 +274,11 @@ nnoremap <silent> <Plug>CalendarH :cal Calendar(1)<CR>
 
 "*****************************************************************
 "* GetToken : get token from source with count
+" 从指定的各个 label 的定义中拿到指定位置的内容
+" 例如：
+"  let g:calendar_navi_label = "Prev,Today,Next"
+"  s:GetToken(g:calendar_navi_label, ",", 2)
+"  则拿到由 "," 分隔的第2个子串，即 "Today"
 "*----------------------------------------------------------------
 "*   src : source
 "*   dlm : delimiter
@@ -404,8 +309,26 @@ endfunction
 "*****************************************************************
 "* CalendarDoAction : call the action handler function
 "*----------------------------------------------------------------
-"*****************************************************************
+"**************************************************************{{{
 function! s:CalendarDoAction(...)
+    " for switch calendar list.
+    let text = getline(".")
+    if text =~ "^( )"
+        let list_idx = 0
+        let curl = line(".") - 1
+        while curl>1
+            if getline(curl) =~ "^([Oo ])"
+                let list_idx += 1
+                let curl -= 1
+            else
+                let g:calendar_current_idx = list_idx
+                let g:calendar_diary = g:calendar_list[list_idx].path
+                call Calendar(b:CalendarDir, b:CalendarYear, b:CalendarMonth)
+                return
+            endif
+        endwhile
+    endif
+
   " for navi
   if exists('g:calendar_navi')
     let navi = (a:0 > 0)? a:1 : expand("<cWORD>")
@@ -450,6 +373,7 @@ function! s:CalendarDoAction(...)
     return
   endif
 
+  " b:CalendarDir ???
   if b:CalendarDir
     let dir = 'H'
     if !exists('g:calendar_monday') && exists('g:calendar_weeknm')
@@ -516,7 +440,46 @@ function! s:CalendarDoAction(...)
   endif
   " call the action function
   exe "call " . g:calendar_action . "(day, month, year, week, dir)"
-endfunc
+endfunc "}}}
+
+function! CalendarOpenFile(path)
+    " load the file
+    if winnr('#') == 0
+        if a:dir == "V"
+            exe "vsplit " . a:path
+        else
+            exe "split " . a:path
+        endif
+    else
+        wincmd p
+        if !&hidden && &modified
+            exe "new " . a:path
+        else
+            exe "edit " . a:path
+        endif
+    endif
+endfunction
+
+function! s:CalendarOpen()
+    let text = getline(".")
+    if text =~ "^([Oo ])"
+        let list_idx = 0
+        let curl = line(".") - 1
+        while curl>1
+            if getline(curl) =~ "^([Oo ])"
+                let list_idx += 1
+                let curl -= 1
+            else
+                let g:calendar_current_idx = list_idx
+                let g:calendar_diary = g:calendar_list[list_idx].path
+                let ext = g:calendar_list[list_idx].ext
+                call Calendar(b:CalendarDir, b:CalendarYear, b:CalendarMonth)
+                call CalendarOpenFile(g:calendar_diary."/index.".ext)
+                return
+            endif
+        endwhile
+    endif
+endfunction
 
 "*****************************************************************
 "* Calendar : build calendar
@@ -715,7 +678,7 @@ function! Calendar(...)
       if g:calendar_erafmt =~ '.*,[+-]*\d\+'
         let veranum=substitute(g:calendar_erafmt,'.*,\([+-]*\d\+\)','\1','')
         if vyear+veranum > 0
-          let vdisplay2=substitute(g:calendar_erafmt,'\(.*\),.*','\1','') 
+          let vdisplay2=substitute(g:calendar_erafmt,'\(.*\),.*','\1','')
           let vdisplay2=vdisplay2.(vyear+veranum).'/'.vmnth.'('
         else
           let vdisplay2=vyear.'/'.vmnth.'('
@@ -845,7 +808,7 @@ function! Calendar(...)
     endwhile
 
     " if it is needed, fill with space
-    if vinpcur % 7 
+    if vinpcur % 7
       while (vinpcur % 7 != 0)
         let vdisplay2=vdisplay2.'   '
         let vinpcur = vinpcur + 1
@@ -956,6 +919,24 @@ function! Calendar(...)
     return vdisplay1
   endif
 
+  "let vdisplay1 = vdisplay1 . "\n      ".vyear."/".vmnth."\n"
+  "let vdisplay1 = vdisplay1 . " Mo Tu We Th Fr Sa Su \n"
+  "let vdisplay1 = vdisplay1 . DisplayMonthlyCalendar(vyear, vmnth)
+
+  let vdisplay1 = vdisplay1 . "\nCalendars:\n----------------------"
+  let diary_index = 0
+  for diary in g:calendar_list
+      if diary_index == g:calendar_current_idx
+          let diary_list = "\n(O) " . diary["name"]
+          let diary_list = diary_list . repeat(" ", 23-len(diary_list))
+      else
+          let diary_list = "\n( ) " . diary["name"]
+          let diary_list = diary_list . repeat(" ", 23-len(diary_list))
+      endif
+      let vdisplay1 = vdisplay1 . diary_list
+      let diary_index = diary_index + 1
+  endfor
+
   "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   "+++ build window
   "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -996,7 +977,9 @@ function! Calendar(...)
       setlocal winfixheight
     else
       execute 'to '.vcolumn.'vsplit __Calendar'
+      setlocal winfixwidth
     endif
+    call s:CalendarBuildKeymap(dir, vyear, vmnth)
     setlocal noswapfile
     setlocal buftype=nofile
     setlocal bufhidden=delete
@@ -1004,7 +987,7 @@ function! Calendar(...)
     " Without this, the 'sidescrolloff' setting may cause the left side of the
     " calendar to disappear if the last inserted element is near the right
     " window border.
-    setlocal wrap
+    setlocal nowrap
     setlocal norightleft
     setlocal foldcolumn=0
     setlocal modifiable
@@ -1066,24 +1049,6 @@ function! Calendar(...)
   let vmnth = vmnth_org
 
   "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  "+++ build keymap
-  "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  " make keymap
-  execute 'nnoremap <silent> <buffer> q :close<bar>wincmd p<cr>'
-
-  execute 'nnoremap <silent> <buffer> <cr> :call <SID>CalendarDoAction()<cr>'
-  execute 'nnoremap <silent> <buffer> <2-LeftMouse> :call <SID>CalendarDoAction()<cr>'
-  execute 'nnoremap <silent> <buffer> t :call Calendar(b:CalendarDir)<cr>'
-  execute 'nnoremap <silent> <buffer> ? :call <SID>CalendarHelp()<cr>'
-  execute 'nnoremap <silent> <buffer> r :call Calendar(' . dir . ',' . vyear . ',' . vmnth . ')<cr>'
-  let pnav = s:GetToken(g:calendar_navi_label, ',', 1)
-  let nnav = s:GetToken(g:calendar_navi_label, ',', 3)
-  execute 'nnoremap <silent> <buffer> <Left>  :call <SID>CalendarDoAction("<' . pnav . '")<cr>'
-  execute 'nnoremap <silent> <buffer> <Right> :call <SID>CalendarDoAction("' . nnav . '>")<cr>'
-  execute 'nnoremap <silent> <buffer> <Up>    :call Calendar('.dir.','.(vyear-1).','.vmnth.')<cr>'
-  execute 'nnoremap <silent> <buffer> <Down>  :call Calendar('.dir.','.(vyear+1).','.vmnth.')<cr>'
-
-  "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   "+++ build highlight
   "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   " today
@@ -1136,6 +1101,8 @@ function! Calendar(...)
         \.dayorspace."\'ms=s+1,me=s+3"
     endif
   endif
+
+  syn match CalCurrList display "^(O).*$"
 
   " week number
   if !exists('g:calendar_weeknm') || g:calendar_weeknm <= 2
@@ -1201,13 +1168,27 @@ function! s:CalendarDiary(day, month, year, week, dir)
       return
     endif
   endif
-  let sfile = expand(sfile) . "/" . a:day . ".cal"
+  let sfile = expand(sfile)."/".a:day.".".g:calendar_list[g:calendar_current_idx]["ext"]
   let sfile = substitute(sfile, ' ', '\\ ', 'g')
   let vbufnr = bufnr('__Calendar')
 
   " load the file
-  exe "sp " . sfile
-  setlocal ft=calendar
+  if winnr('#') == 0
+    if a:dir == "V"
+      exe "vsplit " . sfile
+    else
+      exe "split " . sfile
+    endif
+  else
+    wincmd p
+    if !&hidden && &modified
+      exe "new " . sfile
+    else
+      exe "edit " . sfile
+    endif
+  endif
+
+  "setlocal ft=calendar
   let dir = getbufvar(vbufnr, "CalendarDir")
   let vyear = getbufvar(vbufnr, "CalendarYear")
   let vmnth = getbufvar(vbufnr, "CalendarMonth")
@@ -1222,7 +1203,7 @@ endfunc
 "*   year  : year of sign
 "*****************************************************************
 function! s:CalendarSign(day, month, year)
-  let sfile = g:calendar_diary."/".a:year."/".a:month."/".a:day.".cal"
+  let sfile = g:calendar_diary."/".a:year."/".a:month."/".a:day.".".g:calendar_list[g:calendar_current_idx]["ext"]
   return filereadable(expand(sfile))
 endfunction
 
@@ -1235,6 +1216,40 @@ function! s:CalendarVar(var)
     return ''
   endif
   exec 'return ' . a:var
+endfunction
+
+"*****************************************************************
+"* CalendarBuildKeymap : build keymap
+"*----------------------------------------------------------------
+"*****************************************************************
+function! s:CalendarBuildKeymap(dir, vyear, vmnth)
+  " make keymap
+  execute 'nnoremap <silent> <buffer> q :close<bar>wincmd p<cr>'
+
+  execute 'nnoremap <silent> <buffer> <Plug>CalendarDoAction  :call <SID>CalendarDoAction()<cr>'
+  execute 'nnoremap <silent> <buffer> <Plug>CalendarDoAction  :call <SID>CalendarDoAction()<cr>'
+  execute 'nnoremap <silent> <buffer> <Plug>CalendarOpen      :call <SID>CalendarOpen()<cr>'
+  execute 'nnoremap <silent> <buffer> <Plug>CalendarGotoToday :call Calendar(b:CalendarDir)<cr>'
+  execute 'nnoremap <silent> <buffer> <Plug>CalendarShowHelp  :call <SID>CalendarHelp()<cr>'
+  execute 'nnoremap <silent> <buffer> <Plug>CalendarReDisplay :call Calendar(' . a:dir . ',' . a:vyear . ',' . (a:vmnth-2) . ')<cr>'
+  let pnav = s:GetToken(g:calendar_navi_label, ',', 1)
+  let nnav = s:GetToken(g:calendar_navi_label, ',', 3)
+  execute 'nnoremap <silent> <buffer> <Plug>CalendarGotoPrevMonth :call <SID>CalendarDoAction("<' . pnav . '")<cr>'
+  execute 'nnoremap <silent> <buffer> <Plug>CalendarGotoNextMonth :call <SID>CalendarDoAction("' . nnav . '>")<cr>'
+  execute 'nnoremap <silent> <buffer> <Plug>CalendarGotoPrevYear  :call Calendar('.a:dir.','.(a:vyear-1).','.a:vmnth.')<cr>'
+  execute 'nnoremap <silent> <buffer> <Plug>CalendarGotoNextYear  :call Calendar('.a:dir.','.(a:vyear+1).','.a:vmnth.')<cr>'
+
+  nmap <buffer> <CR>          <Plug>CalendarDoAction
+  nmap <buffer> <2-LeftMouse> <Plug>CalendarDoAction
+  nmap <buffer> t             <Plug>CalendarGotoToday
+  nmap <buffer> ?             <Plug>CalendarShowHelp
+  nmap <buffer> r             <Plug>CalendarReDisplay
+  nmap <buffer> o             <Plug>CalendarOpen
+
+  nmap <buffer> <Left>  <Plug>CalendarGotoPrevMonth
+  nmap <buffer> <Right> <Plug>CalendarGotoNextMonth
+  nmap <buffer> <Up>    <Plug>CalendarGotoPrevYear
+  nmap <buffer> <Down>  <Plug>CalendarGotoNextYear
 endfunction
 
 "*****************************************************************
@@ -1281,3 +1296,4 @@ hi def link CalWeeknm   Comment
 hi def link CalToday    Directory
 hi def link CalHeader   Special
 hi def link CalMemo     Identifier
+hi def link CalCurrList Error

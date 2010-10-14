@@ -522,7 +522,6 @@ v_]%	matchit.txt	/*v_]%*
 v_a%	matchit.txt	/*v_a%*
 v_g%	matchit.txt	/*v_g%*
 vim_complete	neocomplcache.txt	/*vim_complete*
-vimtips.txt	../plugin/vimtips/vimtips.txt	/*vimtips.txt*
 vimwiki	vimwiki.txt	/*vimwiki*
 vimwiki-calendar	vimwiki.txt	/*vimwiki-calendar*
 vimwiki-changelog	vimwiki.txt	/*vimwiki-changelog*
