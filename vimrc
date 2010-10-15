@@ -433,7 +433,7 @@ vnoremap  #  y?<C-R>=escape(@", '\\/.*$^~[]')<CR><CR>
 map <leader>jt  <Esc>:%!json_xs -f json -t json-pretty<CR>
 
 " 搭配minibuffer切换buffer
-noremap <leader><space> <C-^>
+noremap <leader><leader> <C-^>
 
 " =====================
 " 插件配置
