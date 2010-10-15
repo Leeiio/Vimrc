@@ -435,6 +435,23 @@ map <leader>jt  <Esc>:%!json_xs -f json -t json-pretty<CR>
 " 搭配minibuffer切换buffer
 noremap <leader><leader> <C-^>
 
+" 基本完美解决buffer切换，用buffer号加B 键
+function! BufPos_ActivateBuffer(num)
+    if a:num == 0
+        echo "No buffer " . a:num "!"
+        return
+    endif
+    if a:num > bufnr("$")
+        echo "No buffer " . a:num "!"
+    else
+        if buflisted(a:num) && getbufvar(a:num, "&modifiable")
+            exe "buffer " . a:num
+        endif
+    endif
+endfunction
+nmap b :<C-U>call BufPos_ActivateBuffer(v:count)<CR>
+
+
 " =====================
 " 插件配置
 " =====================
