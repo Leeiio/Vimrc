@@ -382,6 +382,10 @@ nmap <C-n>   :tabnext<cr>
 nmap <C-k>   :tabclose<cr>
 nmap <C-Tab> :tabnext<cr>
 
+"切换buffer
+nmap bn :bn<cr>
+nmap bp :bp<cr>
+
 " 插件快捷键
 nmap <C-d> :NERDTree<cr>
 nmap <C-e> :BufExplorer<cr>
@@ -406,6 +410,9 @@ nmap Q :x<cr>
 " 打开日历快捷键
 map ca :Calendar<cr>
 
+"Use spacebar toggle fold
+nnoremap <space> @=((foldclosed(line('.')) < 0) ? 'zc' : 'zo')<CR>
+
 "关闭自动检测编码用F6控制(fencview.vim)
 let g:fencview_autodetect=0
 map <F6> :FencView<cr>
@@ -424,6 +431,9 @@ vnoremap  *  y/<C-R>=escape(@", '\\/.*$^~[]')<CR><CR>
 vnoremap  #  y?<C-R>=escape(@", '\\/.*$^~[]')<CR><CR>
 
 map <leader>jt  <Esc>:%!json_xs -f json -t json-pretty<CR>
+
+" 搭配minibuffer切换buffer
+noremap <leader><space> <C-^>
 
 " =====================
 " 插件配置
@@ -527,6 +537,7 @@ if has("gui_macvim")
     let g:calendar_wruler = '日 一 二 三 四 五 六'
     let g:calendar_navi_label = '上月,本月,下月'
     let g:calendar_list = [
+        \ {'name': 'Works[Doit.im]', 'path': '~/diary/works/Doit.im', 'ext': 'wiki'},
         \ {'name': 'Works', 'path': '~/diary/works', 'ext': 'task'},
         \ {'name': 'Tasks', 'path': '~/diary/tasks', 'ext': 'task'},
         \ {'name': 'Diary', 'path': '~/diary/diary', 'ext': 'diary'},
