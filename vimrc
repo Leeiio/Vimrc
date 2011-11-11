@@ -280,6 +280,8 @@ if has('syntax')
     " 保证语法高亮
     syntax on
 
+    set background=light
+
     if has('gui_running')
         colorscheme solarized
         let g:colors_name="solarized"
