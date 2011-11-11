@@ -148,9 +148,9 @@ fun! s:SetPersistentNumber(name, value)
   silent execute 's/=.*/=' a:value
 endfun
 
-let s:prevDate = 20101015
+let s:prevDate = 20111111
 let s:prevLine = 22
-let s:vimtipsDate = 20101013
+let s:vimtipsDate = 20110903
 
 let &l:cpo = s:save_cpo
 

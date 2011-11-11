@@ -1,4 +1,8 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =2
+let g:netrw_dirhist_cnt =6
 let g:netrw_dirhist_1='/opt/nginx/conf'
 let g:netrw_dirhist_2='/Users/Leeiio/Sites/Doit/web.doit.im'
+let g:netrw_dirhist_3='/Users/Leeiio'
+let g:netrw_dirhist_4='/Users/Leeiio/Documents/TheHitList.thllibrary'
+let g:netrw_dirhist_5='/Users/Leeiio/Documents/地址簿 - 2010-09-15.abbu'
+let g:netrw_dirhist_6='/Users/Leeiio/Sites/Doit/www.doit.im'

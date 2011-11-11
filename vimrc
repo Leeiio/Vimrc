@@ -281,8 +281,8 @@ if has('syntax')
     syntax on
 
     if has('gui_running')
-        colorscheme yytextmate
-        let g:colors_name="yytextmate"
+        colorscheme solarized
+        let g:colors_name="solarized"
     endif
 
     " 默认编辑器配色
@@ -297,8 +297,10 @@ endif
 if has("gui_running")
     set cursorline
     set cursorcolumn
-    hi cursorline guibg=#0D142C
-    hi CursorColumn guibg=#0D142C
+    "hi cursorline guibg=#0D142C
+    "hi cursorline guibg=#FCF5C9
+    "hi CursorColumn guibg=#FCF5C9
+    "hi CursorColumn guibg=#FCF5C9
 endif
 
 
@@ -307,6 +309,9 @@ endif
 " =====================
 if has("autocmd")
     filetype plugin indent on " 打开文件类型检测
+
+    "根据当前buffer切换到该文件所在工作目录
+    "autocmd BufRead * :lcd! %:p:h
 
     augroup vimrcEx " 记住上次文件位置
         au!
@@ -336,7 +341,7 @@ if has("autocmd")
     endif
 
     " 格式化 JavaScript 文件
-    au FileType javascript map <f12> :call g:Jsbeautify()<cr>
+    au FileType javascript map <leader>jb :call g:Jsbeautify()<cr>
     au FileType javascript set omnifunc=javascriptcomplete#CompleteJS
 
     " 增加 ActionScript 语法支持
@@ -360,10 +365,29 @@ set sessionoptions=buffers,sesdir,help,tabpages,winsize
 au VimLeave * mks! ~/Session.vim
 nmap <F7> :so ~/Session.vim<CR>
 
+" 自动刷新firefox
+autocmd BufWriteCmd *.html,*.js,*.css,*.gtpl :call Refresh_firefox()
+function! Refresh_firefox()
+if &modified
+write
+silent !echo ‘vimYo = content.window.pageYOffset;
+\ vimXo = content.window.pageXOffset;
+\ BrowserReload();
+\ content.window.scrollTo(vimXo,vimYo);
+\ repl.quit();’ |
+\ nc localhost 4242 2>&1 > /dev/null
+endif
+endfunction
+
 
 " =====================
 " 快捷键
 " =====================
+inoremap <C-A> <Home>
+inoremap <C-E> <End>
+inoremap <C-F> <Right>
+inoremap <C-B> <Left>
+
 "设置','为leader快捷键
 let mapleader = ","
 let g:mapleader = ","
@@ -455,6 +479,9 @@ nmap b :<C-U>call BufPos_ActivateBuffer(v:count)<CR>
 " =====================
 " 插件配置
 " =====================
+"easyGrep
+map f/ <esc>:Grep
+
 let tlist_html_settings = 'html;h:Headers;o:Objects(ID);c:Classes'
 let tlist_xhtml_settings = 'html;h:Headers;o:Objects(ID);c:Classes'
 
