@@ -73,6 +73,7 @@
 .snippet	snipMate.txt	/*.snippet*
 .snippets	snipMate.txt	/*.snippets*
 :CommandT	command-t.txt	/*:CommandT*
+:CommandTBuffer	command-t.txt	/*:CommandTBuffer*
 :CommandTFlush	command-t.txt	/*:CommandTFlush*
 :DelimitMateReload	delimitMate.txt	/*:DelimitMateReload*
 :DelimitMateSwitch	delimitMate.txt	/*:DelimitMateSwitch*
@@ -324,6 +325,7 @@ g:CommandTCursorRightMap	command-t.txt	/*g:CommandTCursorRightMap*
 g:CommandTCursorStartMap	command-t.txt	/*g:CommandTCursorStartMap*
 g:CommandTDeleteMap	command-t.txt	/*g:CommandTDeleteMap*
 g:CommandTMatchWindowAtTop	command-t.txt	/*g:CommandTMatchWindowAtTop*
+g:CommandTMatchWindowReverse	command-t.txt	/*g:CommandTMatchWindowReverse*
 g:CommandTMaxDepth	command-t.txt	/*g:CommandTMaxDepth*
 g:CommandTMaxFiles	command-t.txt	/*g:CommandTMaxFiles*
 g:CommandTMaxHeight	command-t.txt	/*g:CommandTMaxHeight*
@@ -522,7 +524,6 @@ v_]%	matchit.txt	/*v_]%*
 v_a%	matchit.txt	/*v_a%*
 v_g%	matchit.txt	/*v_g%*
 vim_complete	neocomplcache.txt	/*vim_complete*
-vimtips.txt	../plugin/vimtips/vimtips.txt	/*vimtips.txt*
 vimwiki	vimwiki.txt	/*vimwiki*
 vimwiki-calendar	vimwiki.txt	/*vimwiki-calendar*
 vimwiki-changelog	vimwiki.txt	/*vimwiki-changelog*
